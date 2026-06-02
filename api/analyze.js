@@ -1,50 +1,67 @@
 const SYSTEM_PROMPT = `You are an expert resume reviewer and career coach with 15+ years of hiring experience across tech, finance, and consulting. You give honest, actionable, and specific feedback.`;
 
-const buildPrompt = (resumeText) => `Analyze the resume below and return ONLY a valid JSON object — no markdown fences, no preamble, no extra text.
+const buildGeneralPrompt = (resumeText) => `Analyze the resume below and return ONLY a valid JSON object — no markdown fences, no preamble, no extra text.
 
 Required JSON structure:
 {
-  "score": <integer 0–100 reflecting overall CV quality>,
-  "grade": "<one of: Excellent | Good | Average | Needs Work>",
-  "summary": "<2–3 sentences: honest overall verdict mentioning the biggest strength and biggest gap>",
+  "score": <integer 0–100>,
+  "grade": "<Excellent | Good | Average | Needs Work>",
+  "summary": "<2–3 sentences: honest overall verdict>",
   "dimensions": [
-    { "name": "Contact & Links",   "score": <0–100> },
-    { "name": "Work Experience",   "score": <0–100> },
-    { "name": "Skills",            "score": <0–100> },
-    { "name": "Education",         "score": <0–100> },
-    { "name": "Formatting",        "score": <0–100> },
-    { "name": "Keywords & ATS",    "score": <0–100> }
+    { "name": "Contact & Links",  "score": <0–100>, "feedback": "<1–2 specific sentences about what is present or missing>" },
+    { "name": "Work Experience",  "score": <0–100>, "feedback": "<1–2 specific sentences>" },
+    { "name": "Skills",           "score": <0–100>, "feedback": "<1–2 specific sentences>" },
+    { "name": "Education",        "score": <0–100>, "feedback": "<1–2 specific sentences>" },
+    { "name": "Formatting",       "score": <0–100>, "feedback": "<1–2 specific sentences>" },
+    { "name": "Keywords & ATS",   "score": <0–100>, "feedback": "<1–2 specific sentences>" }
   ],
-  "strengths": [
-    "<specific strength with evidence from the resume>",
-    "<specific strength>",
-    "<specific strength>"
-  ],
-  "recommendations": [
-    "<actionable improvement — be specific, not generic>",
-    "<actionable improvement>",
-    "<actionable improvement>",
-    "<actionable improvement>"
-  ]
+  "strengths": ["<specific strength>", "<specific strength>", "<specific strength>"],
+  "recommendations": ["<actionable improvement>", "<actionable improvement>", "<actionable improvement>", "<actionable improvement>"]
 }
 
-Resume text:
+Resume:
 ${resumeText.slice(0, 6000)}`;
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+const buildJobMatchPrompt = (resumeText, jobDescription) => `Analyze the resume against the job description below. Return ONLY a valid JSON object — no markdown fences, no preamble, no extra text.
 
-  const { resumeText } = req.body;
-  if (!resumeText || resumeText.trim().length < 30) {
+Required JSON structure:
+{
+  "score": <integer 0–100, overall resume quality>,
+  "grade": "<Excellent | Good | Average | Needs Work>",
+  "summary": "<2–3 sentences: overall verdict and fit for this specific role>",
+  "jobMatch": <integer 0–100, how well the resume matches the job requirements>,
+  "matchGaps": ["<missing skill or requirement>", "<missing skill or requirement>", "<missing skill or requirement>"],
+  "dimensions": [
+    { "name": "Contact & Links",  "score": <0–100>, "feedback": "<1–2 specific sentences>" },
+    { "name": "Work Experience",  "score": <0–100>, "feedback": "<1–2 specific sentences relevant to this job>" },
+    { "name": "Skills",           "score": <0–100>, "feedback": "<1–2 specific sentences about skills match>" },
+    { "name": "Education",        "score": <0–100>, "feedback": "<1–2 specific sentences>" },
+    { "name": "Formatting",       "score": <0–100>, "feedback": "<1–2 specific sentences>" },
+    { "name": "Keywords & ATS",   "score": <0–100>, "feedback": "<1–2 specific sentences about keyword alignment with the JD>" }
+  ],
+  "strengths": ["<specific strength relevant to this role>", "<specific strength>", "<specific strength>"],
+  "recommendations": ["<actionable improvement for this role>", "<actionable improvement>", "<actionable improvement>", "<actionable improvement>"]
+}
+
+Job Description:
+${jobDescription.slice(0, 3000)}
+
+Resume:
+${resumeText.slice(0, 4000)}`;
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const { resumeText, jobDescription } = req.body;
+  if (!resumeText || resumeText.trim().length < 30)
     return res.status(400).json({ error: 'Resume text too short or missing.' });
-  }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: 'Server is missing API key configuration.' });
-  }
+  if (!apiKey) return res.status(500).json({ error: 'Server is missing API key configuration.' });
+
+  const prompt = jobDescription && jobDescription.trim().length > 20
+    ? buildJobMatchPrompt(resumeText, jobDescription)
+    : buildGeneralPrompt(resumeText);
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -55,9 +72,9 @@ export default async function handler(req, res) {
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-5',
-      max_tokens: 1024,
+      max_tokens: 1500,
       system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: buildPrompt(resumeText) }],
+      messages: [{ role: 'user', content: prompt }],
     }),
   });
 
