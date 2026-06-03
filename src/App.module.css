@@ -399,6 +399,95 @@
 .listItem:last-child { border-bottom: none; padding-bottom: 0; }
 .listIcon { flex-shrink: 0; font-size: 15px; font-weight: 500; margin-top: 1px; }
 
+/* ── Confetti ────────────────────────────────────────────────────────────── */
+.confettiRoot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 0;
+  pointer-events: none;
+  z-index: 999;
+  overflow: visible;
+}
+
+.confettiPiece {
+  position: absolute;
+  top: -12px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  0%   { transform: translateY(0)     rotate(0deg)   skewX(var(--skew, 0deg)); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(105vh) rotate(600deg) skewX(var(--skew, 0deg)); opacity: 0; }
+}
+
+/* ── Loading Tip ─────────────────────────────────────────────────────────── */
+.loadingTip {
+  font-size: 12px;
+  color: var(--text-dim);
+  max-width: 320px;
+  text-align: center;
+  line-height: 1.6;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* ── Quick Wins ──────────────────────────────────────────────────────────── */
+.winBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #0e0e0e;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* ── ATS Keywords ────────────────────────────────────────────────────────── */
+.kwGroup { margin-bottom: 14px; }
+.kwGroup:last-child { margin-bottom: 0; }
+
+.kwGroupLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.kwTags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.kwTag {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 0.5px solid;
+  letter-spacing: 0.02em;
+}
+
+/* ── Share button ────────────────────────────────────────────────────────── */
+.shareBtn {
+  flex: 1;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.shareBtn:hover { border-color: var(--border-hover); color: var(--text); }
+
 /* ── Premium Card ────────────────────────────────────────────────────────── */
 .premiumCard {
   display: flex;

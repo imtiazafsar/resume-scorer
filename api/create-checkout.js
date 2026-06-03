@@ -1,15 +1,20 @@
 import { pipeline } from './_redis.js';
 
+const PRICES = {
+  rewrite:     { variantEnv: 'LEMONSQUEEZY_VARIANT_ID',    amount: '$2.99', name: 'Resume Optimization' },
+  coverletter: { variantEnv: 'LEMONSQUEEZY_CL_VARIANT_ID', amount: '$1.99', name: 'Cover Letter Generation' },
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { resumeText, jobDescription } = req.body;
-  if (!resumeText || !jobDescription)
-    return res.status(400).json({ error: 'Resume and job description are required.' });
+  const { resumeText, jobDescription, type = 'rewrite' } = req.body;
+  if (!resumeText) return res.status(400).json({ error: 'Resume text is required.' });
 
   const apiKey   = process.env.LEMONSQUEEZY_API_KEY;
   const storeId  = process.env.LEMONSQUEEZY_STORE_ID;
-  const variantId = process.env.LEMONSQUEEZY_VARIANT_ID;
+  const price    = PRICES[type] || PRICES.rewrite;
+  const variantId = process.env[price.variantEnv];
 
   if (!apiKey || !storeId || !variantId)
     return res.status(500).json({ error: 'Payment not configured yet.' });
@@ -17,9 +22,8 @@ export default async function handler(req, res) {
   const key    = crypto.randomUUID();
   const origin = req.headers.origin || `https://${req.headers.host}`;
 
-  // Store resume + JD in Redis for 1 hour
   await pipeline([
-    ['SET', `rewrite:${key}`, JSON.stringify({ resumeText, jobDescription })],
+    ['SET', `rewrite:${key}`, JSON.stringify({ resumeText, jobDescription: jobDescription || '', type })],
     ['EXPIRE', `rewrite:${key}`, 3600],
   ]).catch(() => {});
 
@@ -34,9 +38,7 @@ export default async function handler(req, res) {
       data: {
         type: 'checkouts',
         attributes: {
-          checkout_data: {
-            custom: { key },
-          },
+          checkout_data: { custom: { key, productType: type } },
           product_options: {
             redirect_url: `${origin}/?order_id={order_id}&rewrite_key=${key}`,
             receipt_link_url: `${origin}/`,

@@ -10,7 +10,7 @@ Required JSON structure:
   "grade": "<Excellent | Good | Average | Needs Work>",
   "summary": "<2–3 sentences: honest overall verdict>",
   "dimensions": [
-    { "name": "Contact & Links",  "score": <0–100>, "feedback": "<1–2 specific sentences about what is present or missing>" },
+    { "name": "Contact & Links",  "score": <0–100>, "feedback": "<1–2 specific sentences>" },
     { "name": "Work Experience",  "score": <0–100>, "feedback": "<1–2 specific sentences>" },
     { "name": "Skills",           "score": <0–100>, "feedback": "<1–2 specific sentences>" },
     { "name": "Education",        "score": <0–100>, "feedback": "<1–2 specific sentences>" },
@@ -18,7 +18,12 @@ Required JSON structure:
     { "name": "Keywords & ATS",   "score": <0–100>, "feedback": "<1–2 specific sentences>" }
   ],
   "strengths": ["<specific strength>", "<specific strength>", "<specific strength>"],
-  "recommendations": ["<actionable improvement>", "<actionable improvement>", "<actionable improvement>", "<actionable improvement>"]
+  "recommendations": ["<actionable improvement>", "<actionable improvement>", "<actionable improvement>", "<actionable improvement>"],
+  "quickWins": [
+    "<single specific action that would most increase the score — name the dimension it helps>",
+    "<second most impactful specific action>",
+    "<third most impactful specific action>"
+  ]
 }
 
 Resume:
@@ -32,17 +37,26 @@ Required JSON structure:
   "grade": "<Excellent | Good | Average | Needs Work>",
   "summary": "<2–3 sentences: overall verdict and fit for this specific role>",
   "jobMatch": <integer 0–100, how well the resume matches the job requirements>,
-  "matchGaps": ["<missing skill or requirement>", "<missing skill or requirement>", "<missing skill or requirement>"],
+  "matchGaps": ["<missing requirement>", "<missing requirement>", "<missing requirement>"],
+  "keywords": {
+    "matched": ["<keyword from JD present in resume>", "<keyword>", "<keyword>", "<keyword>", "<keyword>"],
+    "missing": ["<important keyword in JD but absent from resume>", "<keyword>", "<keyword>", "<keyword>", "<keyword>"]
+  },
   "dimensions": [
     { "name": "Contact & Links",  "score": <0–100>, "feedback": "<1–2 specific sentences>" },
     { "name": "Work Experience",  "score": <0–100>, "feedback": "<1–2 specific sentences relevant to this job>" },
     { "name": "Skills",           "score": <0–100>, "feedback": "<1–2 specific sentences about skills match>" },
     { "name": "Education",        "score": <0–100>, "feedback": "<1–2 specific sentences>" },
     { "name": "Formatting",       "score": <0–100>, "feedback": "<1–2 specific sentences>" },
-    { "name": "Keywords & ATS",   "score": <0–100>, "feedback": "<1–2 specific sentences about keyword alignment with the JD>" }
+    { "name": "Keywords & ATS",   "score": <0–100>, "feedback": "<1–2 specific sentences about keyword alignment>" }
   ],
   "strengths": ["<specific strength relevant to this role>", "<specific strength>", "<specific strength>"],
-  "recommendations": ["<actionable improvement for this role>", "<actionable improvement>", "<actionable improvement>", "<actionable improvement>"]
+  "recommendations": ["<actionable improvement for this role>", "<actionable improvement>", "<actionable improvement>", "<actionable improvement>"],
+  "quickWins": [
+    "<single specific action that would most increase the job match score>",
+    "<second most impactful action>",
+    "<third most impactful action>"
+  ]
 }
 
 Job Description:
@@ -81,7 +95,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
-        max_tokens: 1500,
+        max_tokens: 1800,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: prompt }],
       }),
@@ -109,16 +123,12 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to parse AI response. Please try again.' });
   }
 
-  // Log analytics to Redis (fire-and-forget)
   const today = new Date().toISOString().slice(0, 10);
   const inputTokens  = data.usage?.input_tokens  || 0;
   const outputTokens = data.usage?.output_tokens || 0;
   const activity = JSON.stringify({
-    ts:     new Date().toISOString(),
-    score:  parsed.score,
-    grade:  parsed.grade,
-    mode:   isJobMode ? 'job' : 'general',
-    tokens: inputTokens + outputTokens,
+    ts: new Date().toISOString(), score: parsed.score, grade: parsed.grade,
+    mode: isJobMode ? 'job' : 'general', tokens: inputTokens + outputTokens,
   });
 
   pipeline([
