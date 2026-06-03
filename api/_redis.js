@@ -1,5 +1,5 @@
-const URL  = process.env.UPSTASH_REDIS_REST_URL;
-const TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const URL  = process.env.UPSTASH_REDIS_REST_URL  || process.env.KV_REST_API_URL;
+const TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
 export async function pipeline(commands) {
   if (!URL || !TOKEN) return commands.map(() => ({ result: null }));
