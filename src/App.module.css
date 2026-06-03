@@ -399,6 +399,34 @@
 .listItem:last-child { border-bottom: none; padding-bottom: 0; }
 .listIcon { flex-shrink: 0; font-size: 15px; font-weight: 500; margin-top: 1px; }
 
+/* ── Rate Limit ──────────────────────────────────────────────────────────── */
+.limitWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 100px;
+  max-width: 400px;
+  text-align: center;
+}
+
+.limitIcon { font-size: 48px; line-height: 1; }
+
+.limitTitle {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.limitSub {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.limitActions { margin-top: 8px; }
+
 /* ── Confetti ────────────────────────────────────────────────────────────── */
 .confettiRoot {
   position: fixed;

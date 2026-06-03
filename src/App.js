@@ -197,7 +197,7 @@ function KeywordCloud({ keywords }) {
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
-  const [view, setView] = useState('upload');
+  const [view, setView] = useState('upload'); // upload | loading | results | rewriting | product_result | rate_limited
   const [file, setFile] = useState(null);
   const [mode, setMode] = useState('general');
   const [jobDesc, setJobDesc] = useState('');
@@ -268,8 +268,12 @@ export default function App() {
       setResult(data);
       setView('results');
     } catch (err) {
-      setError(err.message);
-      setView('upload');
+      if (err.rateLimited) {
+        setView('rate_limited');
+      } else {
+        setError(err.message);
+        setView('upload');
+      }
     } finally {
       clearInterval(stepInterval.current);
     }
@@ -407,6 +411,27 @@ export default function App() {
           <div className={styles.spinner} />
           <p className={styles.loadingMsg}>{loadingStep.step}</p>
           <p className={styles.loadingTip}>{loadingStep.tip}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Rate limited view ────────────────────────────────────────────────────
+  if (view === 'rate_limited') {
+    return (
+      <div className={styles.page}>
+        <div className={styles.limitWrap}>
+          <div className={styles.limitIcon}>⏳</div>
+          <h2 className={styles.limitTitle}>Daily limit reached</h2>
+          <p className={styles.limitSub}>
+            You've used all <strong>5 free scans</strong> for today.<br />
+            Your limit resets at midnight.
+          </p>
+          <div className={styles.limitActions}>
+            <button className={styles.analyzeBtn} onClick={() => { setView('upload'); setFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>
+              ← Go Back
+            </button>
+          </div>
         </div>
       </div>
     );

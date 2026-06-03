@@ -6,6 +6,10 @@ export async function analyzeResume(resumeText, jobDescription = '') {
   });
 
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error || `Server error: ${response.status}`);
+  if (!response.ok) {
+    const err = new Error(data.error || `Server error: ${response.status}`);
+    err.rateLimited = data.rateLimited || false;
+    throw err;
+  }
   return data;
 }

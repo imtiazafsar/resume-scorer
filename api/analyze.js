@@ -79,6 +79,23 @@ export default async function handler(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server is missing API key configuration.' });
 
+  // Rate limit: 5 free scans per IP per day
+  const today = new Date().toISOString().slice(0, 10);
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+  const rlKey = `ratelimit:${ip}:${today}`;
+  const rlResult = await pipeline([
+    ['INCR', rlKey],
+    ['EXPIRE', rlKey, 86400],
+  ]).catch(() => null);
+  const scanCount = rlResult?.[0]?.result || 1;
+  if (scanCount > 5) {
+    return res.status(429).json({
+      error: `You've used all 5 free scans for today. Your limit resets at midnight — come back tomorrow!`,
+      rateLimited: true,
+      remaining: 0,
+    });
+  }
+
   const isJobMode = jobDescription && jobDescription.trim().length > 20;
   const prompt = isJobMode
     ? buildJobMatchPrompt(resumeText, jobDescription)
@@ -124,7 +141,6 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to parse AI response. Please try again.' });
   }
 
-  const today = new Date().toISOString().slice(0, 10);
   const inputTokens  = data.usage?.input_tokens  || 0;
   const outputTokens = data.usage?.output_tokens || 0;
   const activity = JSON.stringify({
