@@ -8,6 +8,20 @@ export default async function handler(req, res) {
 
   const today = new Date().toISOString().slice(0, 10);
 
+  // Live Redis health check — write + read a test key
+  let redisWorking = false;
+  let redisError = null;
+  try {
+    const ping = await pipeline([
+      ['SET', 'admin:ping', 'ok'],
+      ['EXPIRE', 'admin:ping', 60],
+    ]);
+    redisWorking = ping?.[0]?.result === 'OK';
+    if (!redisWorking) redisError = JSON.stringify(ping?.[0]);
+  } catch (e) {
+    redisError = e.message;
+  }
+
   const results = await pipeline([
     ['GET', 'stats:total'],
     ['GET', `stats:today:${today}`],
@@ -40,10 +54,8 @@ export default async function handler(req, res) {
   const costUSD = Math.round(((inTok * 3 + outTok * 15) / 1e6) * 100) / 100;
 
   return res.status(200).json({
-    redisConnected: !!(
-      (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) ||
-      (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN)
-    ),
+    redisConnected: redisWorking,
+    redisError,
     total:   Number(total)      || 0,
     today:   Number(todayCount) || 0,
     grades: {

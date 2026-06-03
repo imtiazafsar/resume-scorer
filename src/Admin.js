@@ -134,7 +134,11 @@ export default function Admin() {
         {/* KV not connected notice */}
         {stats.redisConnected === false && (
           <div className={s.notice}>
-            <strong>Redis not connected yet.</strong> Go to Vercel → Integrations → search "Upstash Redis" → install and connect to this project. Then add <code>ADMIN_PASSWORD</code> in Environment Variables and redeploy.
+            <strong>Redis not writing data.</strong>{' '}
+            {stats.redisError
+              ? <span>Error: <code>{stats.redisError}</code></span>
+              : 'Check that KV_REST_API_URL and KV_REST_API_TOKEN are set in Vercel Environment Variables and redeploy.'
+            }
           </div>
         )}
 
