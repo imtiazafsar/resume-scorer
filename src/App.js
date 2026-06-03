@@ -396,9 +396,13 @@ export default function App() {
         <div className={styles.premiumCard}>
           <div className={styles.premiumLeft}>
             <span className={styles.premiumBadge}>Premium</span>
-            <h3 className={styles.premiumTitle}>Get your resume rewritten for this job</h3>
+            <h3 className={styles.premiumTitle}>
+              {result.jobMatch != null ? 'Get your resume rewritten for this job' : 'Get a professionally rewritten resume'}
+            </h3>
             <p className={styles.premiumSub}>
-              Our AI rewrites every bullet point, adds the right keywords, and tailors your summary — ready to send.
+              {result.jobMatch != null
+                ? 'Our AI rewrites every bullet point, adds the right keywords, and tailors your summary — ready to send.'
+                : 'Our AI rewrites every bullet point with strong action verbs, improves your summary, and optimises for ATS — ready to send.'}
             </p>
           </div>
           <div className={styles.premiumRight}>
@@ -408,19 +412,14 @@ export default function App() {
               disabled={rewriteLoading || !resumeText}
               onClick={async () => {
                 if (!resumeText) return;
-                const jd = result.jobMatch != null ? jobDesc : '';
-                if (!jd.trim()) {
-                  alert('For best results, use Job Match mode and paste a job description before analyzing.');
-                  return;
-                }
                 setRewriteLoading(true);
                 const res = await fetch('/api/create-checkout', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ resumeText, jobDescription: jd }),
+                  body: JSON.stringify({ resumeText, jobDescription: jobDesc || '' }),
                 }).catch(() => null);
                 setRewriteLoading(false);
-                if (!res?.ok) { alert('Could not start checkout. Please try again.'); return; }
+                if (!res?.ok) { setError('Could not start checkout. Please try again.'); return; }
                 const { url } = await res.json();
                 window.location.href = url;
               }}

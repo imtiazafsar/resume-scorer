@@ -1,6 +1,9 @@
 import { cmd } from './_redis.js';
 
-const REWRITE_PROMPT = (resumeText, jobDescription) => `You are an expert resume writer. Rewrite the resume below so it is perfectly tailored for the job description provided.
+const REWRITE_PROMPT = (resumeText, jobDescription) => {
+  const hasJD = jobDescription && jobDescription.trim().length > 20;
+  const instruction = hasJD
+    ? `Rewrite the resume below so it is perfectly tailored for the job description provided.
 
 Rules:
 - Keep all factual information accurate (companies, dates, degrees, real achievements)
@@ -12,10 +15,23 @@ Rules:
 - Use ALL CAPS for section headers (PROFESSIONAL SUMMARY, EXPERIENCE, SKILLS, EDUCATION, etc.)
 
 Job Description:
-${jobDescription.slice(0, 3000)}
+${jobDescription.slice(0, 3000)}`
+    : `Rewrite the resume below to make it as strong and professional as possible.
+
+Rules:
+- Keep all factual information accurate (companies, dates, degrees, real achievements)
+- Rewrite bullet points using strong action verbs and quantified achievements
+- Write a compelling, professional summary that highlights key strengths
+- Optimise keywords for ATS systems across all industries
+- Ensure skills section is clear and well-organised
+- Return the complete rewritten resume as clean plain text — no markdown, no JSON, no extra commentary
+- Use ALL CAPS for section headers (PROFESSIONAL SUMMARY, EXPERIENCE, SKILLS, EDUCATION, etc.)`;
+
+  return `You are an expert resume writer. ${instruction}
 
 Original Resume:
 ${resumeText.slice(0, 5000)}`;
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
