@@ -1,0 +1,329 @@
+/* ── Login ───────────────────────────────────────────────────────────────── */
+.loginPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 24px;
+}
+
+.loginBox {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.loginBrand {
+  font-family: var(--font-display);
+  font-size: 32px;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.loginTitle {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0;
+}
+
+.loginInput {
+  width: 100%;
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 14px;
+  padding: 11px 14px;
+  transition: border-color 0.15s;
+}
+.loginInput:focus { outline: none; border-color: var(--accent); }
+
+.loginError { color: #f04a4a; font-size: 13px; margin: 0; }
+
+.loginBtn {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  background: var(--accent);
+  color: #0e0e0e;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.loginBtn:hover:not(:disabled) { background: var(--accent-dark); }
+.loginBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Shell ───────────────────────────────────────────────────────────────── */
+.page { min-height: 100vh; background: var(--bg); }
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--bg-card);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topLogo {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.topAdmin {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin-left: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.topActions { display: flex; gap: 8px; }
+
+.refreshBtn {
+  padding: 6px 14px;
+  font-size: 13px;
+  background: transparent;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.refreshBtn:hover:not(:disabled) { border-color: var(--border-hover); color: var(--text); }
+.refreshBtn:disabled { opacity: 0.4; }
+
+.logoutBtn {
+  padding: 6px 14px;
+  font-size: 13px;
+  background: transparent;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.logoutBtn:hover { border-color: #f04a4a; color: #f04a4a; }
+
+.fetchErr {
+  background: #2e0505;
+  color: #f04a4a;
+  font-size: 13px;
+  padding: 10px 28px;
+  border-bottom: 0.5px solid #f04a4a44;
+}
+
+.body { padding: 28px; max-width: 1100px; margin: 0 auto; }
+
+/* ── Notice ──────────────────────────────────────────────────────────────── */
+.notice {
+  background: #1a1a00;
+  border: 0.5px solid #f0c84a44;
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #f0c84a;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+.notice code {
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 12px;
+}
+
+/* ── Stat Cards ──────────────────────────────────────────────────────────── */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.statCard {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.statSub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+/* ── Mid Row ─────────────────────────────────────────────────────────────── */
+.midRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: start;
+}
+
+.rightCol { display: flex; flex-direction: column; gap: 12px; }
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+}
+
+.cardTitle {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cardHint {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  text-transform: none;
+}
+
+.empty { font-size: 13px; color: var(--text-dim); text-align: center; padding: 20px 0; }
+
+/* ── Grade Bars ──────────────────────────────────────────────────────────── */
+.gradeBars { display: flex; flex-direction: column; gap: 14px; }
+
+.gradeRow { display: flex; align-items: center; gap: 12px; }
+.gradeLabel { font-size: 13px; color: var(--text); width: 90px; flex-shrink: 0; }
+.gradeTrack { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.gradeFill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.gradeCount { font-size: 13px; font-weight: 500; width: 70px; text-align: right; flex-shrink: 0; }
+.gradePct { font-size: 11px; opacity: 0.6; font-weight: 400; }
+
+/* ── Mode Split ──────────────────────────────────────────────────────────── */
+.modeSplit { display: flex; align-items: center; justify-content: space-around; padding: 8px 0; }
+.modeItem { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.modeNum { font-family: var(--font-display); font-size: 32px; font-weight: 400; color: var(--text); line-height: 1; }
+.modeLbl { font-size: 12px; color: var(--text-muted); }
+.modePct { font-size: 11px; color: var(--text-dim); }
+.modeSep { width: 0.5px; height: 48px; background: var(--border); }
+
+/* ── Histogram ───────────────────────────────────────────────────────────── */
+.histogram {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 80px;
+  gap: 6px;
+  padding-bottom: 24px;
+  position: relative;
+}
+
+.histCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  position: relative;
+}
+
+.histCount {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.histBar {
+  width: 100%;
+  background: var(--accent);
+  opacity: 0.7;
+  border-radius: 2px 2px 0 0;
+  transition: height 0.5s ease;
+  min-height: 4px;
+}
+
+.histLabel {
+  position: absolute;
+  bottom: -22px;
+  font-size: 9px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* ── Activity Table ──────────────────────────────────────────────────────── */
+.table { overflow-x: auto; }
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 0.5px solid var(--border);
+  font-size: 13px;
+  align-items: center;
+}
+
+.tableRow:last-child { border-bottom: none; }
+
+.tableHead {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding-bottom: 8px;
+}
+
+.cellTime { color: var(--text-muted); font-size: 12px; }
+.cellMuted { color: var(--text-muted); }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .statsRow { grid-template-columns: repeat(3, 1fr); }
+  .midRow { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .statsRow { grid-template-columns: repeat(2, 1fr); }
+  .body { padding: 16px; }
+  .topBar { padding: 12px 16px; }
+}
