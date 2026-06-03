@@ -319,10 +319,11 @@ export default function App() {
       body: JSON.stringify({ resumeText, jobDescription: jobDesc || '', type }),
     }).catch(() => null);
     type === 'coverletter' ? setClLoading(false) : setRewriteLoading(false);
-    if (!res?.ok) { setError('Could not start checkout. Please try again.'); return; }
-    const { url, error: err } = await res.json();
-    if (err) { setError(err); return; }
-    window.location.href = url;
+    if (!res) { setError('Network error. Please check your connection and try again.'); return; }
+    const json = await res.json();
+    if (!res.ok || json.error) { setError(json.error || `Checkout error (${res.status}). Please try again.`); return; }
+    if (!json.url) { setError('No checkout URL returned. Please try again.'); return; }
+    window.location.href = json.url;
   }
 
   // ── Upload view ──────────────────────────────────────────────────────────
@@ -589,6 +590,9 @@ export default function App() {
             ))}
           </ul>
         </section>
+
+        {/* Inline error for checkout failures */}
+        {error && <p className={styles.errorMsg} style={{ textAlign: 'center', maxWidth: '100%' }}>{error}</p>}
 
         {/* Action row */}
         <div className={styles.actionRow}>
