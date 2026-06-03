@@ -132,7 +132,7 @@ export default async function handler(req, res) {
     mode: isJobMode ? 'job' : 'general', tokens: inputTokens + outputTokens,
   });
 
-  pipeline([
+  await pipeline([
     ['INCR', 'stats:total'],
     ['INCR', `stats:today:${today}`],
     ['EXPIRE', `stats:today:${today}`, 172800],
