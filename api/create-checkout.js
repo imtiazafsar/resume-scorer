@@ -1,4 +1,3 @@
-import Stripe from 'stripe';
 import { pipeline } from './_redis.js';
 
 export default async function handler(req, res) {
@@ -8,9 +7,15 @@ export default async function handler(req, res) {
   if (!resumeText || !jobDescription)
     return res.status(400).json({ error: 'Resume and job description are required.' });
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-  const key = crypto.randomUUID();
-  const origin = req.headers.origin || 'https://resume-scorer-5taf.vercel.app';
+  const apiKey   = process.env.LEMONSQUEEZY_API_KEY;
+  const storeId  = process.env.LEMONSQUEEZY_STORE_ID;
+  const variantId = process.env.LEMONSQUEEZY_VARIANT_ID;
+
+  if (!apiKey || !storeId || !variantId)
+    return res.status(500).json({ error: 'Payment not configured yet.' });
+
+  const key    = crypto.randomUUID();
+  const origin = req.headers.origin || `https://${req.headers.host}`;
 
   // Store resume + JD in Redis for 1 hour
   await pipeline([
@@ -18,24 +23,41 @@ export default async function handler(req, res) {
     ['EXPIRE', `rewrite:${key}`, 3600],
   ]).catch(() => {});
 
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: [{
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: 'Resume Optimization',
-          description: 'Your resume rewritten by AI, tailored to your target job — ready to send.',
+  const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/vnd.api+json',
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      data: {
+        type: 'checkouts',
+        attributes: {
+          checkout_data: {
+            custom: { key },
+          },
+          product_options: {
+            redirect_url: `${origin}/?order_id={order_id}&rewrite_key=${key}`,
+            receipt_link_url: `${origin}/`,
+          },
         },
-        unit_amount: 299, // $2.99
+        relationships: {
+          store:   { data: { type: 'stores',   id: String(storeId)   } },
+          variant: { data: { type: 'variants', id: String(variantId) } },
+        },
       },
-      quantity: 1,
-    }],
-    mode: 'payment',
-    success_url: `${origin}/?rewrite_session={CHECKOUT_SESSION_ID}&rewrite_key=${key}`,
-    cancel_url: `${origin}/`,
-    metadata: { key },
+    }),
   });
 
-  return res.status(200).json({ url: session.url });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    return res.status(500).json({ error: err?.errors?.[0]?.detail || 'Failed to create checkout.' });
+  }
+
+  const data = await response.json();
+  const url  = data?.data?.attributes?.url;
+  if (!url) return res.status(500).json({ error: 'No checkout URL returned.' });
+
+  return res.status(200).json({ url });
 }

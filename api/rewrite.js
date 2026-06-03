@@ -1,4 +1,3 @@
-import Stripe from 'stripe';
 import { cmd } from './_redis.js';
 
 const REWRITE_PROMPT = (resumeText, jobDescription) => `You are an expert resume writer. Rewrite the resume below so it is perfectly tailored for the job description provided.
@@ -9,7 +8,6 @@ Rules:
 - Naturally weave in keywords from the job description
 - Rewrite the professional summary to match the role
 - Reorganise the skills section to lead with what the job needs most
-- Keep the same sections but optimise every line
 - Return the complete rewritten resume as clean plain text — no markdown, no JSON, no extra commentary
 - Use ALL CAPS for section headers (PROFESSIONAL SUMMARY, EXPERIENCE, SKILLS, EDUCATION, etc.)
 
@@ -22,20 +20,26 @@ ${resumeText.slice(0, 5000)}`;
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { sessionId, key } = req.body;
-  if (!sessionId || !key) return res.status(400).json({ error: 'Missing parameters.' });
+  const { orderId, key } = req.body;
+  if (!orderId || !key) return res.status(400).json({ error: 'Missing parameters.' });
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  const apiKey = process.env.LEMONSQUEEZY_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'Payment not configured.' });
 
-  // Verify payment
-  let session;
-  try {
-    session = await stripe.checkout.sessions.retrieve(sessionId);
-  } catch {
-    return res.status(400).json({ error: 'Invalid session.' });
-  }
+  // Verify the order is actually paid via Lemon Squeezy API
+  const orderRes = await fetch(`https://api.lemonsqueezy.com/v1/orders/${orderId}`, {
+    headers: {
+      'Accept': 'application/vnd.api+json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+  });
 
-  if (session.payment_status !== 'paid')
+  if (!orderRes.ok) return res.status(400).json({ error: 'Could not verify payment.' });
+
+  const orderData = await orderRes.json();
+  const status    = orderData?.data?.attributes?.status;
+
+  if (status !== 'paid')
     return res.status(402).json({ error: 'Payment not completed.' });
 
   // Retrieve stored resume data
@@ -45,12 +49,11 @@ export default async function handler(req, res) {
   const { resumeText, jobDescription } = JSON.parse(raw);
 
   // Call Claude to rewrite
-  const apiKey = process.env.ANTHROPIC_API_KEY;
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': apiKey,
+      'x-api-key': process.env.ANTHROPIC_API_KEY,
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
@@ -62,10 +65,10 @@ export default async function handler(req, res) {
 
   if (!response.ok) return res.status(500).json({ error: 'AI rewrite failed. Please contact support.' });
 
-  const data = await response.json();
+  const data      = await response.json();
   const rewritten = data.content.map(b => b.text || '').join('').trim();
 
-  // Delete the stored data now that it's been used
+  // Delete stored data — it's been used
   cmd('DEL', `rewrite:${key}`).catch(() => {});
 
   return res.status(200).json({ rewritten });

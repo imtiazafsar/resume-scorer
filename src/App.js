@@ -120,15 +120,15 @@ export default function App() {
   // Handle post-payment redirect from Stripe
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get('rewrite_session');
+    const orderId = params.get('order_id');
     const key = params.get('rewrite_key');
-    if (!sessionId || !key) return;
+    if (!orderId || !key) return;
     window.history.replaceState({}, '', '/');
     setView('rewriting');
     fetch('/api/rewrite', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, key }),
+      body: JSON.stringify({ orderId, key }),
     })
       .then(r => r.json())
       .then(data => {
