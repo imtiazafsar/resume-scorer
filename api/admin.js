@@ -40,6 +40,7 @@ export default async function handler(req, res) {
   const costUSD = Math.round(((inTok * 3 + outTok * 15) / 1e6) * 100) / 100;
 
   return res.status(200).json({
+    redisConnected: !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN),
     total:   Number(total)      || 0,
     today:   Number(todayCount) || 0,
     grades: {
