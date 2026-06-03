@@ -105,13 +105,38 @@ export default function App() {
   const [jobDesc, setJobDesc] = useState('');
   const [loadingMsg, setLoadingMsg] = useState(LOADING_MESSAGES[0]);
   const [result, setResult] = useState(null);
+  const [resumeText, setResumeText] = useState('');
   const [error, setError] = useState('');
   const [drag, setDrag] = useState(false);
   const [history, setHistory] = useState(loadHistory);
   const [showHistory, setShowHistory] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [rewriteLoading, setRewriteLoading] = useState(false);
+  const [rewriteResult, setRewriteResult] = useState('');
+  const [rewriteCopied, setRewriteCopied] = useState(false);
   const fileInputRef = useRef();
   const msgInterval = useRef();
+
+  // Handle post-payment redirect from Stripe
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('rewrite_session');
+    const key = params.get('rewrite_key');
+    if (!sessionId || !key) return;
+    window.history.replaceState({}, '', '/');
+    setView('rewriting');
+    fetch('/api/rewrite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, key }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { setError(data.error); setView('upload'); }
+        else { setRewriteResult(data.rewritten); setView('rewrite_result'); }
+      })
+      .catch(() => { setError('Rewrite failed. Please contact support.'); setView('upload'); });
+  }, []);
 
   function handleFile(f) {
     if (!f) return;
@@ -140,6 +165,7 @@ export default function App() {
       const text = await extractText(file);
       if (!text || text.trim().length < 30)
         throw new Error('Could not extract text. Try a different format or a text-based PDF.');
+      setResumeText(text);
       const data = await analyzeResume(text, mode === 'job' ? jobDesc : '');
       const entry = { id: Date.now(), filename: file.name, date: new Date().toLocaleDateString(), score: data.score, grade: data.grade, result: data };
       saveToHistory(entry);
@@ -282,6 +308,60 @@ export default function App() {
     );
   }
 
+  // ── Rewriting view ───────────────────────────────────────────────────────
+  if (view === 'rewriting') {
+    return (
+      <div className={styles.page}>
+        <div className={styles.loadingWrap}>
+          <div className={styles.spinner} />
+          <p className={styles.loadingMsg}>Rewriting your resume for this job…</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Rewrite result view ──────────────────────────────────────────────────
+  if (view === 'rewrite_result') {
+    function downloadTxt() {
+      const blob = new Blob([rewriteResult], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'optimized_resume.txt';
+      a.click();
+    }
+    return (
+      <div className={styles.page}>
+        <div className={styles.results}>
+          <div className={styles.rewriteHero}>
+            <span className={styles.rewriteTag}>Optimized Resume</span>
+            <h2 className={styles.rewriteTitle}>Your resume has been rewritten</h2>
+            <p className={styles.rewriteSub}>Tailored to your target job. Copy it into Word or Google Docs to format.</p>
+          </div>
+          <div className={styles.rewriteBox}>
+            <pre className={styles.rewriteText}>{rewriteResult}</pre>
+          </div>
+          <div className={styles.actionRow}>
+            <button className={styles.copyBtn} onClick={() => {
+              navigator.clipboard.writeText(rewriteResult).then(() => {
+                setRewriteCopied(true);
+                setTimeout(() => setRewriteCopied(false), 2000);
+              });
+            }}>
+              {rewriteCopied ? '✓ Copied!' : '⎘ Copy Resume'}
+            </button>
+            <button className={styles.downloadBtn} onClick={downloadTxt}>↓ Download .txt</button>
+          </div>
+          <button className={styles.resetBtn} style={{ marginTop: 10 }} onClick={() => {
+            setRewriteResult('');
+            setResult(null);
+            setFile(null);
+            setView('upload');
+          }}>← Analyze Another Resume</button>
+        </div>
+      </div>
+    );
+  }
+
   // ── Loading view ─────────────────────────────────────────────────────────
   if (view === 'loading') {
     return (
@@ -309,6 +389,44 @@ export default function App() {
             </span>
             <h2 className={styles.scoreTitle}>Overall Score</h2>
             <p className={styles.scoreSummary}>{result.summary}</p>
+          </div>
+        </div>
+
+        {/* Premium rewrite card */}
+        <div className={styles.premiumCard}>
+          <div className={styles.premiumLeft}>
+            <span className={styles.premiumBadge}>Premium</span>
+            <h3 className={styles.premiumTitle}>Get your resume rewritten for this job</h3>
+            <p className={styles.premiumSub}>
+              Our AI rewrites every bullet point, adds the right keywords, and tailors your summary — ready to send.
+            </p>
+          </div>
+          <div className={styles.premiumRight}>
+            <span className={styles.premiumPrice}>$2.99</span>
+            <button
+              className={styles.premiumBtn}
+              disabled={rewriteLoading || !resumeText}
+              onClick={async () => {
+                if (!resumeText) return;
+                const jd = result.jobMatch != null ? jobDesc : '';
+                if (!jd.trim()) {
+                  alert('For best results, use Job Match mode and paste a job description before analyzing.');
+                  return;
+                }
+                setRewriteLoading(true);
+                const res = await fetch('/api/create-checkout', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ resumeText, jobDescription: jd }),
+                }).catch(() => null);
+                setRewriteLoading(false);
+                if (!res?.ok) { alert('Could not start checkout. Please try again.'); return; }
+                const { url } = await res.json();
+                window.location.href = url;
+              }}
+            >
+              {rewriteLoading ? 'Preparing…' : 'Rewrite My Resume →'}
+            </button>
           </div>
         </div>
 
