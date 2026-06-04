@@ -399,6 +399,29 @@
 .listItem:last-child { border-bottom: none; padding-bottom: 0; }
 .listIcon { flex-shrink: 0; font-size: 15px; font-weight: 500; margin-top: 1px; }
 
+/* ── Enterprise Banner ───────────────────────────────────────────────────── */
+.enterpriseBanner {
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  text-align: center;
+  margin-bottom: 28px;
+  transition: border-color 0.15s, color 0.15s;
+  animation: fadeUp 0.4s ease both;
+}
+.enterpriseBanner:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+.enterpriseBanner strong { color: var(--accent); }
+
 /* ── Social Proof ────────────────────────────────────────────────────────── */
 .socialProof {
   display: inline-flex;
@@ -806,23 +829,4 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.copyBtn:hover { background: var(--accent); color: #0e0e0e; }
-
-.resetBtn {
-  flex: 1;
-  padding: 11px 20px;
-  background: transparent;
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  font-size: 14px;
-  transition: border-color 0.15s, color 0.15s;
-}
-.resetBtn:hover { border-color: var(--border-hover); color: var(--text); }
-
-/* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 500px) {
-  .scoreHero { flex-direction: column; text-align: center; }
-  .scoreMeta { text-align: center; }
-  .actionRow { flex-direction: column; }
-}
+.copyBtn:hover { backgro

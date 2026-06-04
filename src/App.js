@@ -355,6 +355,10 @@ export default function App() {
           </div>
         )}
 
+        <a href="/enterprise" className={styles.enterpriseBanner}>
+          🏢 Hiring? Screen multiple candidates at once — <strong>Enterprise →</strong>
+        </a>
+
         <header className={styles.header}>
           <h1 className={styles.title}>Resume<br />Scorer</h1>
           <p className={styles.subtitle}>Drop your CV and get an AI-powered score, dimension breakdown,<br />strengths, and actionable recommendations.</p>
@@ -715,11 +719,4 @@ export default function App() {
         {/* Action row */}
         <div className={styles.actionRow}>
           <button className={styles.copyBtn} onClick={copyResults}>{copied ? '✓ Copied!' : '⎘ Copy Results'}</button>
-          <button className={styles.shareBtn} onClick={shareScore}>↗ Share Score</button>
-          <button className={styles.resetBtn} onClick={reset}>← Analyze Another</button>
-        </div>
-
-      </div>
-    </div>
-  );
-}
+          <button className={styles.shareBtn} onClick={
