@@ -211,7 +211,9 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [rewriteLoading, setRewriteLoading] = useState(false);
   const [clLoading, setClLoading] = useState(false);
-  const [productResult, setProductResult] = useState(null); // { content, type }
+  const [bundleLoading, setBundleLoading] = useState(false);
+  const [linkedinLoading, setLinkedinLoading] = useState(false);
+  const [productResult, setProductResult] = useState(null); // { content, type } | { type:'bundle', bundleRewrite, bundleCoverLetter }
   const [productCopied, setProductCopied] = useState(false);
   const fileInputRef = useRef();
   const stepInterval = useRef();
@@ -306,19 +308,27 @@ export default function App() {
     }
   }
 
+  const LOADING_SETTERS = {
+    rewrite:     setRewriteLoading,
+    coverletter: setClLoading,
+    bundle:      setBundleLoading,
+    linkedin:    setLinkedinLoading,
+  };
+
   async function startCheckout(type) {
     if (!resumeText) return;
-    if (type === 'coverletter' && !jobDesc.trim()) {
-      setError('Cover letter generation requires a job description. Please use Job Match mode.');
+    if ((type === 'coverletter' || type === 'bundle') && !jobDesc.trim()) {
+      setError('This product requires a job description. Please use Job Match mode.');
       return;
     }
-    type === 'coverletter' ? setClLoading(true) : setRewriteLoading(true);
+    const setLoading = LOADING_SETTERS[type] || setRewriteLoading;
+    setLoading(true);
     const res = await fetch('/api/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ resumeText, jobDescription: jobDesc || '', type }),
     }).catch(() => null);
-    type === 'coverletter' ? setClLoading(false) : setRewriteLoading(false);
+    setLoading(false);
     if (!res) { setError('Network error. Please check your connection and try again.'); return; }
     const json = await res.json();
     if (!res.ok || json.error) { setError(json.error || `Checkout error (${res.status}). Please try again.`); return; }
@@ -484,68 +494,122 @@ export default function App() {
 
   // ── Product result view ──────────────────────────────────────────────────
   if (view === 'product_result' && productResult) {
-    const isCL = productResult.type === 'coverletter';
-    const isRewrite = productResult.type === 'rewrite';
-    function download() {
-      const blob = new Blob([productResult.content], { type: 'text/plain' });
+    const isCL       = productResult.type === 'coverletter';
+    const isRewrite  = productResult.type === 'rewrite';
+    const isBundle   = productResult.type === 'bundle';
+    const isLinkedIn = productResult.type === 'linkedin';
+
+    const LABELS = {
+      rewrite:     { tag: 'Optimized Resume',   title: 'Your resume has been rewritten',      sub: 'Paste into Word or Google Docs to format.' },
+      coverletter: { tag: 'Cover Letter',        title: 'Your cover letter is ready',          sub: 'Copy it into your email or Word doc.' },
+      bundle:      { tag: 'Bundle',              title: 'Your resume + cover letter are ready', sub: 'Download or copy each document below.' },
+      linkedin:    { tag: 'LinkedIn Optimizer',  title: 'Your LinkedIn profile is ready',      sub: 'Copy each section directly into your LinkedIn profile.' },
+    };
+    const label = LABELS[productResult.type] || LABELS.rewrite;
+
+    function download(content, filename) {
+      const blob = new Blob([content], { type: 'text/plain' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = isCL ? 'cover_letter.txt' : 'optimized_resume.txt';
+      a.download = filename;
       a.click();
     }
+
     return (
       <div className={styles.page}>
         <div className={styles.results}>
           <div className={styles.rewriteHero}>
-            <span className={styles.rewriteTag}>{isCL ? 'Cover Letter' : 'Optimized Resume'}</span>
-            <h2 className={styles.rewriteTitle}>{isCL ? 'Your cover letter is ready' : 'Your resume has been rewritten'}</h2>
-            <p className={styles.rewriteSub}>{isCL ? 'Tailored to your target role. Copy it into your email or Word doc.' : 'Tailored to your target job. Paste into Word or Google Docs to format.'}</p>
-          </div>
-          <div className={styles.rewriteBox}>
-            <pre className={styles.rewriteText}>{productResult.content}</pre>
-          </div>
-          <div className={styles.actionRow}>
-            <button className={styles.copyBtn} onClick={() => {
-              navigator.clipboard.writeText(productResult.content).then(() => { setProductCopied(true); setTimeout(() => setProductCopied(false), 2000); });
-            }}>{productCopied ? '✓ Copied!' : '⎘ Copy'}</button>
-            <button className={styles.downloadBtn} onClick={download}>↓ Download .txt</button>
+            <span className={styles.rewriteTag}>{label.tag}</span>
+            <h2 className={styles.rewriteTitle}>{label.title}</h2>
+            <p className={styles.rewriteSub}>{label.sub}</p>
           </div>
 
-          {/* Cross-sell: rewrite buyers → cover letter, CL buyers → rewrite */}
-          {isRewrite && jobDesc && (
-            <div className={styles.premiumCard} style={{ marginTop: 16, background: 'linear-gradient(135deg, #000d2e 0%, #001a33 100%)', borderColor: '#4af0c844' }}>
-              <div className={styles.premiumLeft}>
-                <span className={styles.premiumBadge} style={{ color: '#4af0c8', background: '#4af0c818', borderColor: '#4af0c844' }}>Complete the package</span>
-                <h3 className={styles.premiumTitle}>Add a tailored cover letter</h3>
-                <p className={styles.premiumSub}>You already have the rewritten resume — pair it with a cover letter and send a complete, standout application.</p>
+          {/* Bundle: two separate sections */}
+          {isBundle ? (
+            <>
+              <div className={styles.bundleSection}>
+                <div className={styles.bundleSectionHeader}>
+                  <span className={styles.bundleSectionTag}>Optimized Resume</span>
+                </div>
+                <div className={styles.rewriteBox}>
+                  <pre className={styles.rewriteText}>{productResult.bundleRewrite}</pre>
+                </div>
+                <div className={styles.actionRow}>
+                  <button className={styles.copyBtn} onClick={() => {
+                    navigator.clipboard.writeText(productResult.bundleRewrite)
+                      .then(() => { setProductCopied('resume'); setTimeout(() => setProductCopied(false), 2000); });
+                  }}>{productCopied === 'resume' ? '✓ Copied!' : '⎘ Copy Resume'}</button>
+                  <button className={styles.downloadBtn} onClick={() => download(productResult.bundleRewrite, 'optimized_resume.txt')}>↓ Download</button>
+                </div>
               </div>
-              <div className={styles.premiumRight}>
-                <span className={styles.premiumPrice} style={{ color: '#4af0c8' }}>$3.99</span>
-                <button className={styles.premiumBtn} style={{ background: '#4af0c8' }}
-                  disabled={clLoading} onClick={() => startCheckout('coverletter')}>
-                  {clLoading ? 'Preparing…' : 'Add Cover Letter →'}
-                </button>
+              <div className={styles.bundleSection} style={{ marginTop: 14 }}>
+                <div className={styles.bundleSectionHeader}>
+                  <span className={styles.bundleSectionTag} style={{ color: '#4af0c8', background: '#4af0c818', borderColor: '#4af0c844' }}>Cover Letter</span>
+                </div>
+                <div className={styles.rewriteBox}>
+                  <pre className={styles.rewriteText}>{productResult.bundleCoverLetter}</pre>
+                </div>
+                <div className={styles.actionRow}>
+                  <button className={styles.copyBtn} onClick={() => {
+                    navigator.clipboard.writeText(productResult.bundleCoverLetter)
+                      .then(() => { setProductCopied('cl'); setTimeout(() => setProductCopied(false), 2000); });
+                  }}>{productCopied === 'cl' ? '✓ Copied!' : '⎘ Copy Cover Letter'}</button>
+                  <button className={styles.downloadBtn} onClick={() => download(productResult.bundleCoverLetter, 'cover_letter.txt')}>↓ Download</button>
+                </div>
               </div>
-            </div>
-          )}
-          {isCL && (
-            <div className={styles.premiumCard} style={{ marginTop: 16 }}>
-              <div className={styles.premiumLeft}>
-                <span className={styles.premiumBadge}>Complete the package</span>
-                <h3 className={styles.premiumTitle}>Rewrite your resume too</h3>
-                <p className={styles.premiumSub}>Your cover letter is ready — now make sure your resume is just as strong. AI rewrites every bullet for maximum impact.</p>
+            </>
+          ) : (
+            <>
+              <div className={styles.rewriteBox}>
+                <pre className={styles.rewriteText}>{productResult.content}</pre>
               </div>
-              <div className={styles.premiumRight}>
-                <span className={styles.premiumPrice}>$4.99</span>
-                <button className={styles.premiumBtn}
-                  disabled={rewriteLoading} onClick={() => startCheckout('rewrite')}>
-                  {rewriteLoading ? 'Preparing…' : 'Rewrite Resume →'}
-                </button>
+              <div className={styles.actionRow}>
+                <button className={styles.copyBtn} onClick={() => {
+                  navigator.clipboard.writeText(productResult.content).then(() => { setProductCopied(true); setTimeout(() => setProductCopied(false), 2000); });
+                }}>{productCopied ? '✓ Copied!' : '⎘ Copy'}</button>
+                <button className={styles.downloadBtn} onClick={() => download(
+                  productResult.content,
+                  isCL ? 'cover_letter.txt' : isLinkedIn ? 'linkedin_profile.txt' : 'optimized_resume.txt'
+                )}>↓ Download .txt</button>
               </div>
-            </div>
+
+              {/* Cross-sell: rewrite → cover letter, CL → rewrite */}
+              {isRewrite && jobDesc && (
+                <div className={styles.premiumCard} style={{ marginTop: 16, background: 'linear-gradient(135deg, #000d2e 0%, #001a33 100%)', borderColor: '#4af0c844' }}>
+                  <div className={styles.premiumLeft}>
+                    <span className={styles.premiumBadge} style={{ color: '#4af0c8', background: '#4af0c818', borderColor: '#4af0c844' }}>Complete the package</span>
+                    <h3 className={styles.premiumTitle}>Add a tailored cover letter</h3>
+                    <p className={styles.premiumSub}>Pair your rewritten resume with a role-specific cover letter and send a complete, standout application.</p>
+                  </div>
+                  <div className={styles.premiumRight}>
+                    <span className={styles.premiumPrice} style={{ color: '#4af0c8' }}>$3.99</span>
+                    <button className={styles.premiumBtn} style={{ background: '#4af0c8' }}
+                      disabled={clLoading} onClick={() => startCheckout('coverletter')}>
+                      {clLoading ? 'Preparing…' : 'Add Cover Letter →'}
+                    </button>
+                  </div>
+                </div>
+              )}
+              {isCL && (
+                <div className={styles.premiumCard} style={{ marginTop: 16 }}>
+                  <div className={styles.premiumLeft}>
+                    <span className={styles.premiumBadge}>Complete the package</span>
+                    <h3 className={styles.premiumTitle}>Rewrite your resume too</h3>
+                    <p className={styles.premiumSub}>Your cover letter is ready — now make your resume just as strong. AI rewrites every bullet for maximum impact.</p>
+                  </div>
+                  <div className={styles.premiumRight}>
+                    <span className={styles.premiumPrice}>$4.99</span>
+                    <button className={styles.premiumBtn}
+                      disabled={rewriteLoading} onClick={() => startCheckout('rewrite')}>
+                      {rewriteLoading ? 'Preparing…' : 'Rewrite Resume →'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
-          <button className={styles.resetBtn} style={{ marginTop: 10 }} onClick={reset}>← Analyze Another Resume</button>
+          <button className={styles.resetBtn} style={{ marginTop: 14 }} onClick={reset}>← Analyze Another Resume</button>
         </div>
       </div>
     );
@@ -651,7 +715,7 @@ export default function App() {
             </div>
             {result.matchGaps?.length > 0 && (
               <ul className={styles.gapList}>
-                {result.matchGaps.map((g, i) => <li key={i} className={styles.gapItem}>⚠ {g}</li>)}
+                            {result.matchGaps.map((g, i) => <li key={i} className={styles.gapItem}>⚠ {g}</li>)}
               </ul>
             )}
           </div>
@@ -672,9 +736,9 @@ export default function App() {
           <div className={styles.premiumRight}>
             <span className={styles.premiumPrice} style={{ color: '#0a84ff' }}>$2.99</span>
             <button className={styles.premiumBtn} style={{ background: '#0a84ff' }}
-              disabled={!resumeText}
+              disabled={linkedinLoading || !resumeText}
               onClick={() => startCheckout('linkedin')}>
-              Optimise LinkedIn →
+              {linkedinLoading ? 'Preparing…' : 'Optimise LinkedIn →'}
             </button>
           </div>
         </div>

@@ -47,6 +47,48 @@ Cover letter guidelines:
 - Do NOT include placeholders like [Your Name], [Date], or [Address]
 - Return ONLY the cover letter body — no subject line, no salutation header`;
 
+const LINKEDIN_PROMPT = (resumeText, jobDescription) => {
+  const roleCtx = jobDescription && jobDescription.trim().length > 20
+    ? `The candidate is targeting this role:\n${jobDescription.slice(0, 1500)}\n\n`
+    : '';
+  return `You are a LinkedIn profile expert. Rewrite the candidate's LinkedIn sections to maximise recruiter visibility and search ranking.
+
+${roleCtx}Resume:
+${resumeText.slice(0, 4000)}
+
+Return ONLY the following sections as plain text, each with its label in ALL CAPS followed by a colon:
+
+HEADLINE:
+(One punchy line, max 220 chars. Lead with value, not job title. Include 2–3 keywords recruiters search for.)
+
+ABOUT:
+(3 short paragraphs. Hook → key achievements with numbers → what you're looking for. First-person, no buzzwords. Max 2,000 chars.)
+
+SKILLS:
+(Comma-separated list of 15–20 specific, searchable skills relevant to the candidate's experience and target role.)
+
+No markdown, no extra commentary. Return exactly these three sections.`;
+};
+
+async function callClaude(apiKey, prompt, maxTokens = 4000) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5',
+      max_tokens: maxTokens,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+  if (!r.ok) throw new Error(`AI error ${r.status}`);
+  const d = await r.json();
+  return d.content.map(b => b.text || '').join('').trim();
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -66,47 +108,3 @@ export default async function handler(req, res) {
   if (orderData?.data?.attributes?.status !== 'paid')
     return res.status(402).json({ error: 'Payment not completed.' });
 
-  // Retrieve stored data
-  const raw = await cmd('GET', `rewrite:${key}`);
-  if (!raw) return res.status(404).json({ error: 'Session expired. Please start over.' });
-
-  const { resumeText, jobDescription, type = 'rewrite' } = JSON.parse(raw);
-
-  const prompt = type === 'coverletter'
-    ? COVER_LETTER_PROMPT(resumeText, jobDescription)
-    : RESUME_REWRITE_PROMPT(resumeText, jobDescription);
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': process.env.ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-5',
-      max_tokens: 4000,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
-
-  if (!response.ok) return res.status(500).json({ error: 'AI generation failed. Please contact support.' });
-
-  const data    = await response.json();
-  const content = data.content.map(b => b.text || '').join('').trim();
-
-  cmd('DEL', `rewrite:${key}`).catch(() => {});
-
-  // Track revenue
-  const cents = PRICE_CENTS[type] || 499;
-  const revenueEntry = JSON.stringify({ ts: new Date().toISOString(), type, cents });
-  pipeline([
-    ['INCRBY', 'revenue:total',           String(cents)],
-    ['INCR',   `revenue:${type}:count`],
-    ['INCRBY', `revenue:${type}:total`,   String(cents)],
-    ['LPUSH',  'revenue:activity',        revenueEntry],
-    ['LTRIM',  'revenue:activity', '0', '49'],
-  ]).catch(() => {});
-
-  return res.status(200).json({ content, type });
-}

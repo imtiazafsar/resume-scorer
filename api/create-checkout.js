@@ -1,8 +1,10 @@
 import { pipeline } from './_redis.js';
 
 const PRICES = {
-  rewrite:     { variantEnv: 'LEMONSQUEEZY_VARIANT_ID',    amount: '$2.99', name: 'Resume Optimization' },
-  coverletter: { variantEnv: 'LEMONSQUEEZY_CL_VARIANT_ID', amount: '$1.99', name: 'Cover Letter Generation' },
+  rewrite:     { variantEnv: 'LEMONSQUEEZY_VARIANT_ID',          amount: '$4.99', name: 'Resume Rewrite'        },
+  coverletter: { variantEnv: 'LEMONSQUEEZY_CL_VARIANT_ID',       amount: '$3.99', name: 'Cover Letter'          },
+  bundle:      { variantEnv: 'LEMONSQUEEZY_BUNDLE_VARIANT_ID',   amount: '$7.99', name: 'Resume + Cover Letter' },
+  linkedin:    { variantEnv: 'LEMONSQUEEZY_LINKEDIN_VARIANT_ID', amount: '$2.99', name: 'LinkedIn Optimizer'    },
 };
 
 export default async function handler(req, res) {

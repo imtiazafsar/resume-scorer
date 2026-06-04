@@ -743,6 +743,29 @@
   .premiumRight { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
 }
 
+/* ── Bundle Section ──────────────────────────────────────────────────────── */
+.bundleSection {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+}
+
+.bundleSectionHeader { margin-bottom: 14px; }
+
+.bundleSectionTag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c8f04a;
+  background: #c8f04a18;
+  border: 0.5px solid #c8f04a44;
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
 /* ── Rewrite Result ───────────────────────────────────────────────────────── */
 .rewriteHero {
   background: linear-gradient(135deg, #1a1a00 0%, #0d1a0d 100%);
@@ -849,7 +872,6 @@
   .scoreMeta { text-align: center; }
   .actionRow { flex-direction: column; }
 }
-
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
