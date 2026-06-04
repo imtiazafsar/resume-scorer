@@ -881,3 +881,23 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ── Payment Fallback ────────────────────────────────────────────────────── */
+.paymentFallback {
+  background: #1a2e05;
+  border: 1px solid #c8f04a66;
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.paymentFallbackMsg {
+  font-size: 14px;
+  color: var(--text);
+  margin: 0;
+}

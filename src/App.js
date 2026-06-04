@@ -215,6 +215,7 @@ export default function App() {
   const [linkedinLoading, setLinkedinLoading] = useState(false);
   const [productResult, setProductResult] = useState(null); // { content, type } | { type:'bundle', bundleRewrite, bundleCoverLetter }
   const [productCopied, setProductCopied] = useState(false);
+  const [awaitingPayment, setAwaitingPayment] = useState(false);
   const fileInputRef = useRef();
   const stepInterval = useRef();
 
@@ -228,42 +229,49 @@ export default function App() {
     linkedin:    'https://imtiazafsar.gumroad.com/l/linkedin-optimizer',
   };
 
-  // Listen for Gumroad purchase success postMessage
+  // Deliver product after confirmed payment
+  function deliverProduct(saleId) {
+    const pendingType   = sessionStorage.getItem('gumroad_pending_type');
+    const pendingResume = sessionStorage.getItem('gumroad_pending_resume');
+    const pendingJD     = sessionStorage.getItem('gumroad_pending_jd') || '';
+    if (!pendingType) return;
+    sessionStorage.removeItem('gumroad_pending_type');
+    sessionStorage.removeItem('gumroad_pending_resume');
+    sessionStorage.removeItem('gumroad_pending_jd');
+    setAwaitingPayment(false);
+    if (pendingType === 'pro') {
+      const sid = saleId || Date.now().toString();
+      fetch('/api/activate-pro', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ saleId: sid }) }).catch(() => {});
+      localStorage.setItem('resume_pro_token', sid);
+      setView('pro_success');
+      return;
+    }
+    if (!pendingResume) return;
+    setView('rewriting');
+    fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resumeText: pendingResume, jobDescription: pendingJD, type: pendingType, saleId: saleId || Date.now().toString() }),
+    }).then(r => r.json()).then(d => {
+      if (d.error) { setError(d.error); setView('results'); }
+      else { setProductResult(d); setView('product_result'); }
+    }).catch(() => { setError('Generation failed. Please contact support.'); setView('results'); });
+  }
+
+  // Listen for Gumroad postMessage (multiple formats) + set awaitingPayment
   useEffect(() => {
     function onMessage(e) {
-      // Gumroad fires this message after successful purchase
-      if (!e.data || typeof e.data !== 'string') return;
-      let data;
-      try { data = JSON.parse(e.data); } catch { return; }
-      if (data.post_message_name !== 'sale') return;
-
-      const pendingType = sessionStorage.getItem('gumroad_pending_type');
-      const pendingResume = sessionStorage.getItem('gumroad_pending_resume');
-      const pendingJD = sessionStorage.getItem('gumroad_pending_jd') || '';
-      const saleId = data.sale?.id || data.id || Date.now().toString();
-
-      if (!pendingType || !pendingResume) return;
-      sessionStorage.removeItem('gumroad_pending_type');
-      sessionStorage.removeItem('gumroad_pending_resume');
-      sessionStorage.removeItem('gumroad_pending_jd');
-
-      setView('rewriting');
-      fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          resumeText: pendingResume,
-          jobDescription: pendingJD,
-          type: pendingType,
-          saleId,
-        }),
-      })
-        .then(r => r.json())
-        .then(d => {
-          if (d.error) { setError(d.error); setView('results'); }
-          else { setProductResult(d); setView('product_result'); }
-        })
-        .catch(() => { setError('Generation failed. Please contact support.'); setView('results'); });
+      if (!e.data) return;
+      let isSale = false; let saleId = null;
+      if (e.data === 'gumroad:purchase') { isSale = true; }
+      if (!isSale && typeof e.data === 'string') {
+        try { const d = JSON.parse(e.data); if (d.post_message_name === 'sale' || d.event === 'purchase') { isSale = true; saleId = d.sale?.id || d.id; } } catch {}
+      }
+      if (!isSale && typeof e.data === 'object') {
+        if (e.data.post_message_name === 'sale' || e.data.event === 'purchase') { isSale = true; saleId = e.data.sale?.id || e.data.id; }
+      }
+      if (!isSale) return;
+      deliverProduct(saleId);
     }
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
@@ -349,6 +357,7 @@ export default function App() {
     sessionStorage.setItem('gumroad_pending_jd', jobDesc || '');
 
     // Open Gumroad overlay
+    setAwaitingPayment(true);
     const url = GUMROAD_URLS[type];
     if (!url) return;
     const a = document.createElement('a');
@@ -800,6 +809,16 @@ export default function App() {
             ))}
           </ul>
         </section>
+
+        {/* Fallback delivery button — shown after Gumroad overlay opened */}
+        {awaitingPayment && (
+          <div className={styles.paymentFallback}>
+            <p className={styles.paymentFallbackMsg}>✅ Payment confirmed? Click below to get your document.</p>
+            <button className={styles.analyzeBtn} style={{ marginTop: 0 }} onClick={() => deliverProduct(null)}>
+              Generate My Document →
+            </button>
+          </div>
+        )}
 
         {/* Inline error for checkout failures */}
         {error && <p className={styles.errorMsg} style={{ textAlign: 'center', maxWidth: '100%' }}>{error}</p>}
