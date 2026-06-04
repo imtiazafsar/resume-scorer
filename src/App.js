@@ -656,6 +656,29 @@ export default function App() {
           </div>
         </div>
 
+        {/* Premium: LinkedIn Optimizer */}
+        <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #001829 0%, #001020 100%)', borderColor: '#0a66c244' }}>
+          <div className={styles.premiumLeft}>
+            <span className={styles.premiumBadge} style={{ color: '#0a84ff', background: '#0a84ff18', borderColor: '#0a84ff44' }}>New</span>
+            <h3 className={styles.premiumTitle}>LinkedIn Profile Optimizer</h3>
+            <ul className={styles.premiumBullets} style={{ color: 'var(--text-dim)' }}>
+              <li>✓ Headline &amp; About rewritten for recruiter search</li>
+              <li>✓ Skills section tuned for your target role</li>
+              <li>✓ Copy-paste ready in 30 seconds</li>
+            </ul>
+            <p className={styles.premiumTrust}>⚡ 71% more recruiter views · 30-day money-back guarantee</p>
+          </div>
+          <div className={styles.premiumRight}>
+            <span className={styles.premiumPrice} style={{ color: '#0a84ff' }}>$2.99</span>
+            <button className={styles.premiumBtn} style={{ background: '#0a84ff' }}
+              disabled={linkedinLoading || !resumeText}
+              onClick={() => startCheckout('linkedin')}>
+              {linkedinLoading ? 'Preparing…' : 'Optimise LinkedIn →'}
+            </button>
+          </div>
+        </div>
+
+
         {/* Premium: Bundle (job match mode only — shown first for maximum impact) */}
         {result.jobMatch != null && (
           <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #1a0d2e 0%, #0d1a1a 100%)', borderColor: '#a855f744', position: 'relative', overflow: 'hidden' }}>
@@ -743,28 +766,6 @@ export default function App() {
             )}
           </div>
         )}
-
-        {/* Premium: LinkedIn Optimizer */}
-        <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #001829 0%, #001020 100%)', borderColor: '#0a66c244' }}>
-          <div className={styles.premiumLeft}>
-            <span className={styles.premiumBadge} style={{ color: '#0a84ff', background: '#0a84ff18', borderColor: '#0a84ff44' }}>New</span>
-            <h3 className={styles.premiumTitle}>LinkedIn Profile Optimizer</h3>
-            <ul className={styles.premiumBullets} style={{ color: 'var(--text-dim)' }}>
-              <li>✓ Headline &amp; About rewritten for recruiter search</li>
-              <li>✓ Skills section tuned for your target role</li>
-              <li>✓ Copy-paste ready in 30 seconds</li>
-            </ul>
-            <p className={styles.premiumTrust}>⚡ 71% more recruiter views · 30-day money-back guarantee</p>
-          </div>
-          <div className={styles.premiumRight}>
-            <span className={styles.premiumPrice} style={{ color: '#0a84ff' }}>$2.99</span>
-            <button className={styles.premiumBtn} style={{ background: '#0a84ff' }}
-              disabled={linkedinLoading || !resumeText}
-              onClick={() => startCheckout('linkedin')}>
-              {linkedinLoading ? 'Preparing…' : 'Optimise LinkedIn →'}
-            </button>
-          </div>
-        </div>
 
         {/* ATS Keywords */}
         <KeywordCloud keywords={result.keywords} />
