@@ -87,9 +87,24 @@ export default async function handler(req, res) {
     .map((c, i) => ({ ...c, rank: i + 1 }));
 
   // Log to analytics
+  const validCandidates = candidates.filter(c => !c.error);
+  const avgScore = validCandidates.length
+    ? Math.round(validCandidates.reduce((a, c) => a + c.score, 0) / validCandidates.length)
+    : 0;
+  const entryActivity = JSON.stringify({
+    ts: new Date().toISOString(),
+    jobTitle,
+    count: candidates.length,
+    avgScore,
+  });
   await pipeline([
-    ['INCRBY', 'enterprise:total', String(candidates.length)],
+    ['INCRBY', 'enterprise:total',        String(candidates.length)],
+    ['INCR',   'enterprise:totalBatches'],
     ['INCR',   `enterprise:batches:${today}`],
+    ['INCRBY', 'enterprise:scoreSum',     String(avgScore * validCandidates.length)],
+    ['INCRBY', 'enterprise:scoreCount',   String(validCandidates.length)],
+    ['LPUSH',  'enterprise:activity',     entryActivity],
+    ['LTRIM',  'enterprise:activity', '0', '49'],
   ]).catch(() => {});
 
   return res.status(200).json({ candidates, total: candidates.length, jobTitle });

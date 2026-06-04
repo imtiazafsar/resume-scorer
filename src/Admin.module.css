@@ -12,9 +12,9 @@
   background: var(--bg-card);
   border: 0.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 40px 36px;
+  padding: 44px 40px;
   width: 100%;
-  max-width: 360px;
+  max-width: 380px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,15 +23,29 @@
 
 .loginBrand {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: 36px;
   color: var(--accent);
+  background: #1a2e05;
+  border: 0.5px solid var(--accent);
+  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
 }
 
 .loginTitle {
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 20px;
+  font-weight: 600;
   color: var(--text);
+  margin: 4px 0 0;
+}
+
+.loginSub {
+  font-size: 13px;
+  color: var(--text-dim);
   margin: 0;
 }
 
@@ -42,24 +56,25 @@
   border-radius: var(--radius-sm);
   color: var(--text);
   font-size: 14px;
-  padding: 11px 14px;
+  padding: 12px 14px;
   transition: border-color 0.15s;
+  box-sizing: border-box;
 }
 .loginInput:focus { outline: none; border-color: var(--accent); }
-
 .loginError { color: #f04a4a; font-size: 13px; margin: 0; }
 
 .loginBtn {
   width: 100%;
-  padding: 12px;
+  padding: 13px;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   background: var(--accent);
   color: #0e0e0e;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.15s;
+  letter-spacing: 0.01em;
 }
 .loginBtn:hover:not(:disabled) { background: var(--accent-dark); }
 .loginBtn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -71,31 +86,61 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 28px;
+  padding: 0 28px;
   border-bottom: 0.5px solid var(--border);
   background: var(--bg-card);
   position: sticky;
   top: 0;
   z-index: 10;
+  height: 56px;
+  gap: 16px;
 }
 
 .topLogo {
   font-family: var(--font-display);
   font-size: 20px;
   color: var(--accent);
+  flex-shrink: 0;
 }
 
 .topAdmin {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-dim);
   margin-left: 8px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.topActions { display: flex; gap: 8px; }
+/* ── Tab Navigation ──────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  justify-content: center;
+}
+
+.tab {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.tab:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.tabOn {
+  background: #c8f04a18;
+  color: var(--accent);
+  border: 0.5px solid #c8f04a33;
+}
+
+.topActions { display: flex; gap: 8px; flex-shrink: 0; }
 
 .refreshBtn {
   padding: 6px 14px;
@@ -108,7 +153,7 @@
   transition: border-color 0.15s, color 0.15s;
 }
 .refreshBtn:hover:not(:disabled) { border-color: var(--border-hover); color: var(--text); }
-.refreshBtn:disabled { opacity: 0.4; }
+.refreshBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .logoutBtn {
   padding: 6px 14px;
@@ -130,17 +175,13 @@
   border-bottom: 0.5px solid #f04a4a44;
 }
 
-.body { padding: 28px; max-width: 1100px; margin: 0 auto; }
-
 /* ── Notice ──────────────────────────────────────────────────────────────── */
 .notice {
   background: #1a1a00;
-  border: 0.5px solid #f0c84a44;
-  border-radius: var(--radius);
-  padding: 14px 18px;
+  border-bottom: 0.5px solid #f0c84a44;
+  padding: 12px 28px;
   font-size: 13px;
   color: #f0c84a;
-  margin-bottom: 20px;
   line-height: 1.6;
 }
 .notice code {
@@ -150,52 +191,64 @@
   font-size: 12px;
 }
 
+.body { padding: 24px 28px; max-width: 1200px; margin: 0 auto; }
+
 /* ── Stat Cards ──────────────────────────────────────────────────────────── */
 .statsRow {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .statCard {
   background: var(--bg-card);
   border: 0.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px 18px;
+  padding: 18px 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition: border-color 0.15s;
 }
+.statCard:hover { border-color: var(--border-hover); }
+
+.statIcon { font-size: 18px; line-height: 1; margin-bottom: 4px; }
 
 .statValue {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 400;
   color: var(--text);
   line-height: 1;
 }
 
 .statLabel {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--text-dim);
 }
 
 .statSub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
 
+/* ── Chart Row ───────────────────────────────────────────────────────────── */
+.chartsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
 /* ── Mid Row ─────────────────────────────────────────────────────────────── */
 .midRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   align-items: start;
 }
-
-.rightCol { display: flex; flex-direction: column; gap: 12px; }
 
 /* ── Card ────────────────────────────────────────────────────────────────── */
 .card {
@@ -203,15 +256,16 @@
   border: 0.5px solid var(--border);
   border-radius: var(--radius);
   padding: 22px 24px;
+  margin-bottom: 16px;
 }
 
 .cardTitle {
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-dim);
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -220,12 +274,46 @@
 .cardHint {
   font-size: 10px;
   font-weight: 400;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   opacity: 0.6;
   text-transform: none;
 }
 
-.empty { font-size: 13px; color: var(--text-dim); text-align: center; padding: 20px 0; }
+.empty {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 24px 0;
+  font-style: italic;
+}
+
+/* ── Bar Chart ───────────────────────────────────────────────────────────── */
+.barChart { display: flex; flex-direction: column; gap: 4px; }
+
+.barLabels {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 4px;
+}
+
+.barLabel {
+  font-size: 11px;
+  text-align: center;
+  flex: 1;
+  color: var(--text-dim);
+}
+
+.barValues {
+  display: flex;
+  justify-content: space-around;
+}
+
+.barValue {
+  font-size: 10px;
+  text-align: center;
+  flex: 1;
+  font-family: var(--font-display);
+}
 
 /* ── Grade Bars ──────────────────────────────────────────────────────────── */
 .gradeBars { display: flex; flex-direction: column; gap: 14px; }
@@ -233,24 +321,16 @@
 .gradeRow { display: flex; align-items: center; gap: 12px; }
 .gradeLabel { font-size: 13px; color: var(--text); width: 90px; flex-shrink: 0; }
 .gradeTrack { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.gradeFill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
-.gradeCount { font-size: 13px; font-weight: 500; width: 70px; text-align: right; flex-shrink: 0; }
-.gradePct { font-size: 11px; opacity: 0.6; font-weight: 400; }
+.gradeFill { height: 100%; border-radius: 3px; transition: width 0.7s ease; }
+.gradeCount { font-size: 13px; font-weight: 500; width: 72px; text-align: right; flex-shrink: 0; }
+.gradePct { font-size: 11px; opacity: 0.55; font-weight: 400; }
 
-/* ── Mode Split ──────────────────────────────────────────────────────────── */
-.modeSplit { display: flex; align-items: center; justify-content: space-around; padding: 8px 0; }
-.modeItem { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.modeNum { font-family: var(--font-display); font-size: 32px; font-weight: 400; color: var(--text); line-height: 1; }
-.modeLbl { font-size: 12px; color: var(--text-muted); }
-.modePct { font-size: 11px; color: var(--text-dim); }
-.modeSep { width: 0.5px; height: 48px; background: var(--border); }
-
-/* ── Histogram ───────────────────────────────────────────────────────────── */
+/* ── Score Histogram ─────────────────────────────────────────────────────── */
 .histogram {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  height: 80px;
+  height: 90px;
   gap: 6px;
   padding-bottom: 24px;
   position: relative;
@@ -266,19 +346,14 @@
   position: relative;
 }
 
-.histCount {
-  font-size: 10px;
-  color: var(--text-dim);
-  margin-bottom: 4px;
-}
+.histCount { font-size: 10px; color: var(--text-dim); margin-bottom: 4px; }
 
 .histBar {
   width: 100%;
-  background: var(--accent);
-  opacity: 0.7;
-  border-radius: 2px 2px 0 0;
+  border-radius: 3px 3px 0 0;
   transition: height 0.5s ease;
   min-height: 4px;
+  opacity: 0.85;
 }
 
 .histLabel {
@@ -289,41 +364,113 @@
   white-space: nowrap;
 }
 
-/* ── Activity Table ──────────────────────────────────────────────────────── */
-.table { overflow-x: auto; }
+/* ── Mode Donut ──────────────────────────────────────────────────────────── */
+.donutWrap {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 0;
+}
+
+.donutLegend { display: flex; flex-direction: column; gap: 14px; }
+
+.donutItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.donutDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donutName { flex: 1; }
+.donutNum { font-family: var(--font-display); font-size: 20px; font-weight: 400; color: var(--text); }
+.donutPct { font-size: 11px; color: var(--text-dim); }
+
+/* ── Revenue Bars ────────────────────────────────────────────────────────── */
+.revBars { display: flex; flex-direction: column; gap: 16px; }
+
+.revRow { display: flex; align-items: center; gap: 12px; }
+
+.revLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.revDot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.revLabel { font-size: 13px; color: var(--text); flex: 1; }
+.revCount { font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+.revAmount { font-size: 14px; font-weight: 600; width: 72px; text-align: right; flex-shrink: 0; }
+
+/* ── Cost Row ────────────────────────────────────────────────────────────── */
+.costRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.costItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  border-right: 0.5px solid var(--border);
+}
+.costItem:last-child { border-right: none; }
+
+.costNum { font-family: var(--font-display); font-size: 22px; font-weight: 400; color: var(--text); }
+.costLbl { font-size: 11px; color: var(--text-dim); text-align: center; }
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.tableWrap { overflow-x: auto; }
 
 .tableRow {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   padding: 10px 0;
   border-bottom: 0.5px solid var(--border);
   font-size: 13px;
   align-items: center;
 }
-
 .tableRow:last-child { border-bottom: none; }
 
 .tableHead {
   font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--text-dim);
-  padding-bottom: 8px;
 }
 
-.cellTime { color: var(--text-muted); font-size: 12px; }
+.cellTime  { color: var(--text-dim); font-size: 12px; }
 .cellMuted { color: var(--text-muted); }
+.cellBold  { color: var(--text); font-weight: 500; }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .statsRow { grid-template-columns: repeat(3, 1fr); }
-  .midRow { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .chartsRow { grid-template-columns: 1fr; }
+  .midRow    { grid-template-columns: 1fr; }
+  .statsRow  { grid-template-columns: repeat(2, 1fr); }
+  .costRow   { grid-template-columns: repeat(2, 1fr); }
+  .tabs      { display: none; }
 }
 
 @media (max-width: 560px) {
   .statsRow { grid-template-columns: repeat(2, 1fr); }
-  .body { padding: 16px; }
-  .topBar { padding: 12px 16px; }
+  .body     { padding: 16px; }
+  .topBar   { padding: 0 16px; }
 }

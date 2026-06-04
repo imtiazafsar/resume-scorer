@@ -1,4 +1,6 @@
-import { cmd } from './_redis.js';
+import { cmd, pipeline } from './_redis.js';
+
+const PRICE_CENTS = { rewrite: 499, coverletter: 399, bundle: 799, linkedin: 299 };
 
 const RESUME_REWRITE_PROMPT = (resumeText, jobDescription) => {
   const hasJD = jobDescription && jobDescription.trim().length > 20;
@@ -94,6 +96,17 @@ export default async function handler(req, res) {
   const content = data.content.map(b => b.text || '').join('').trim();
 
   cmd('DEL', `rewrite:${key}`).catch(() => {});
+
+  // Track revenue
+  const cents = PRICE_CENTS[type] || 499;
+  const revenueEntry = JSON.stringify({ ts: new Date().toISOString(), type, cents });
+  pipeline([
+    ['INCRBY', 'revenue:total',           String(cents)],
+    ['INCR',   `revenue:${type}:count`],
+    ['INCRBY', `revenue:${type}:total`,   String(cents)],
+    ['LPUSH',  'revenue:activity',        revenueEntry],
+    ['LTRIM',  'revenue:activity', '0', '49'],
+  ]).catch(() => {});
 
   return res.status(200).json({ content, type });
 }
