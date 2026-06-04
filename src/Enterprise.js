@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { extractText } from './extractText';
 import s from './Enterprise.module.css';
 
@@ -56,6 +56,35 @@ export default function Enterprise() {
   const [error, setError]        = useState('');
   const [expanded, setExpanded]  = useState(null);
   const fileRef = useRef();
+
+  const GUMROAD_URLS = {
+    batch:   'https://imtiazafsar.gumroad.com/l/enterprise-batch',
+    monthly: 'https://imtiazafsar.gumroad.com/l/enterprise-monthly',
+  };
+
+  // Listen for Gumroad purchase success → unlock screening
+  useEffect(() => {
+    function onMessage(e) {
+      if (!e.data || typeof e.data !== 'string') return;
+      let data;
+      try { data = JSON.parse(e.data); } catch { return; }
+      if (data.post_message_name !== 'sale') return;
+      setView('setup');
+    }
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
+
+  function openGumroad(type) {
+    const url = GUMROAD_URLS[type];
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url + '?wanted=true';
+    a.setAttribute('data-gumroad-overlay-checkout', 'true');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 
   function addFiles(newFiles) {
     const valid = Array.from(newFiles).filter(f =>
@@ -149,12 +178,9 @@ export default function Enterprise() {
                   <li>✓ Score, grade, strengths &amp; gaps</li>
                   <li>✓ CSV export</li>
                 </ul>
-                <a
-                  href="mailto:imtiazafsar456@gmail.com?subject=Enterprise%20Batch%20Screening&body=Hi%2C%20I%27d%20like%20to%20purchase%20a%20screening%20batch."
-                  className={s.pricingBtn}
-                >
+                <button className={s.pricingBtn} onClick={() => openGumroad('batch')}>
                   Buy a batch →
-                </a>
+                </button>
               </div>
 
               {/* Monthly plan */}
@@ -169,13 +195,13 @@ export default function Enterprise() {
                   <li>✓ All batch features</li>
                   <li>✓ Priority support</li>
                 </ul>
-                <a
-                  href="mailto:imtiazafsar456@gmail.com?subject=Enterprise%20Monthly%20Plan&body=Hi%2C%20I%27d%20like%20to%20subscribe%20to%20the%20monthly%20Enterprise%20plan."
+                <button
                   className={s.pricingBtn}
                   style={{ background: '#c8f04a', color: '#0e0e0e' }}
+                  onClick={() => openGumroad('monthly')}
                 >
                   Start monthly plan →
-                </a>
+                </button>
               </div>
             </div>
 
@@ -328,7 +354,7 @@ export default function Enterprise() {
                   <div className={s.candidateCell}>
                     <span className={s.candidateName}>{c.name}</span>
                     <span className={s.candidateFile}>{c.filename}</span>
-                  </div>
+                        </div>
                   <ScorePill score={c.score} />
                   <GradeBadge grade={c.grade} />
                   <span className={s.strengthCell}>{c.topStrength}</span>
