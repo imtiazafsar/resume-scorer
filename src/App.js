@@ -220,25 +220,53 @@ export default function App() {
 
   const confettiPieces = useConfetti(view === 'results' && result?.score >= 80);
 
-  // Handle Lemon Squeezy post-payment redirect
+  // Gumroad product URLs
+  const GUMROAD_URLS = {
+    rewrite:     'https://imtiazafsar.gumroad.com/l/resume-rewrite',
+    coverletter: 'https://imtiazafsar.gumroad.com/l/cover-letter',
+    bundle:      'https://imtiazafsar.gumroad.com/l/resume-bundle',
+    linkedin:    'https://imtiazafsar.gumroad.com/l/linkedin-optimizer',
+  };
+
+  // Listen for Gumroad purchase success postMessage
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const orderId = params.get('order_id');
-    const key = params.get('rewrite_key');
-    if (!orderId || !key) return;
-    window.history.replaceState({}, '', '/');
-    setView('rewriting');
-    fetch('/api/rewrite', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId, key }),
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.error) { setError(data.error); setView('upload'); }
-        else { setProductResult(data); setView('product_result'); }
+    function onMessage(e) {
+      // Gumroad fires this message after successful purchase
+      if (!e.data || typeof e.data !== 'string') return;
+      let data;
+      try { data = JSON.parse(e.data); } catch { return; }
+      if (data.post_message_name !== 'sale') return;
+
+      const pendingType = sessionStorage.getItem('gumroad_pending_type');
+      const pendingResume = sessionStorage.getItem('gumroad_pending_resume');
+      const pendingJD = sessionStorage.getItem('gumroad_pending_jd') || '';
+      const saleId = data.sale?.id || data.id || Date.now().toString();
+
+      if (!pendingType || !pendingResume) return;
+      sessionStorage.removeItem('gumroad_pending_type');
+      sessionStorage.removeItem('gumroad_pending_resume');
+      sessionStorage.removeItem('gumroad_pending_jd');
+
+      setView('rewriting');
+      fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resumeText: pendingResume,
+          jobDescription: pendingJD,
+          type: pendingType,
+          saleId,
+        }),
       })
-      .catch(() => { setError('Generation failed. Please contact support.'); setView('upload'); });
+        .then(r => r.json())
+        .then(d => {
+          if (d.error) { setError(d.error); setView('results'); }
+          else { setProductResult(d); setView('product_result'); }
+        })
+        .catch(() => { setError('Generation failed. Please contact support.'); setView('results'); });
+    }
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
   }, []);
 
   function handleFile(f) {
@@ -308,32 +336,27 @@ export default function App() {
     }
   }
 
-  const LOADING_SETTERS = {
-    rewrite:     setRewriteLoading,
-    coverletter: setClLoading,
-    bundle:      setBundleLoading,
-    linkedin:    setLinkedinLoading,
-  };
-
-  async function startCheckout(type) {
+  function startCheckout(type) {
     if (!resumeText) return;
     if ((type === 'coverletter' || type === 'bundle') && !jobDesc.trim()) {
       setError('This product requires a job description. Please use Job Match mode.');
       return;
     }
-    const setLoading = LOADING_SETTERS[type] || setRewriteLoading;
-    setLoading(true);
-    const res = await fetch('/api/create-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resumeText, jobDescription: jobDesc || '', type }),
-    }).catch(() => null);
-    setLoading(false);
-    if (!res) { setError('Network error. Please check your connection and try again.'); return; }
-    const json = await res.json();
-    if (!res.ok || json.error) { setError(json.error || `Checkout error (${res.status}). Please try again.`); return; }
-    if (!json.url) { setError('No checkout URL returned. Please try again.'); return; }
-    window.location.href = json.url;
+    setError('');
+    // Store data in sessionStorage — retrieved after Gumroad overlay purchase
+    sessionStorage.setItem('gumroad_pending_type', type);
+    sessionStorage.setItem('gumroad_pending_resume', resumeText);
+    sessionStorage.setItem('gumroad_pending_jd', jobDesc || '');
+
+    // Open Gumroad overlay
+    const url = GUMROAD_URLS[type];
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url + '?wanted=true';
+    a.setAttribute('data-gumroad-overlay-checkout', 'true');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   // ── Upload view ──────────────────────────────────────────────────────────
