@@ -185,8 +185,13 @@ export default function Admin() {
     setBusy(true); setFetchErr('');
     try {
       const res = await fetch('/api/admin', { headers: { 'x-admin-key': pw } });
-      if (res.status === 401) { sessionStorage.removeItem('admin_key'); setAuthed(false); return; }
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (res.status === 401) { sessionStorage.removeItem('admin_key'); setAuthed(false); setBusy(false); return; }
+      if (!res.ok) {
+        const txt = await res.text().catch(() => `HTTP ${res.status}`);
+        setFetchErr(`Server error (${res.status}): ${txt.slice(0, 120)}`);
+        setBusy(false);
+        return;
+      }
       setStats(await res.json());
       setAuthed(true);
     } catch (e) {
@@ -203,12 +208,24 @@ export default function Admin() {
 
   async function login() {
     setBusy(true); setAuthErr('');
-    const res = await fetch('/api/admin', { headers: { 'x-admin-key': password } }).catch(() => null);
-    setBusy(false);
-    if (!res || res.status === 401) { setAuthErr('Wrong password.'); return; }
-    sessionStorage.setItem('admin_key', password);
-    setStats(await res.json());
-    setAuthed(true);
+    try {
+      const res = await fetch('/api/admin', { headers: { 'x-admin-key': password } });
+      if (res.status === 401) { setAuthErr('Wrong password.'); setBusy(false); return; }
+      if (!res.ok) {
+        const txt = await res.text().catch(() => `HTTP ${res.status}`);
+        setAuthErr(`Server error (${res.status}): ${txt.slice(0, 120)}`);
+        setBusy(false);
+        return;
+      }
+      const data = await res.json();
+      sessionStorage.setItem('admin_key', password);
+      setStats(data);
+      setAuthed(true);
+    } catch (e) {
+      setAuthErr(`Network error: ${e.message}`);
+    } finally {
+      setBusy(false);
+    }
   }
 
   function logout() {
