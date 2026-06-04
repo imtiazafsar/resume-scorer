@@ -6,6 +6,7 @@ export default async function handler(req, res) {
   if (!process.env.ADMIN_PASSWORD || key !== process.env.ADMIN_PASSWORD)
     return res.status(401).json({ error: 'Unauthorized' });
 
+  try {
   const today = new Date().toISOString().slice(0, 10);
 
   // Redis health check
@@ -71,6 +72,10 @@ export default async function handler(req, res) {
     ]),
   ]);
 
+  // Guard: if Redis returned an error object instead of array, surface it
+  if (!Array.isArray(results)) {
+    return res.status(500).json({ error: 'Redis pipeline error', detail: JSON.stringify(results) });
+  }
   const v = results.map(r => r?.result ?? null);
   const [
     total, todayCount,
@@ -146,6 +151,4 @@ export default async function handler(req, res) {
     revenue: {
       total:      revTotalCents,
       totalSales,
-      rewrite:     { count: Number(revRewriteCount)   || 0, total: Number(revRewriteTotal)   || 0 },
-      coverletter: { count: Number(revCLCount)         || 0, total: Number(revCLTotal)         || 0 },
-      bundle:      { count: Number(revBundleCount)     || 0, total: Number(revBundleTotal)     || 0 },
+      rewrite:     { count: Number(revRewriteCount)   || 0, total: Number(revRewriteTo
