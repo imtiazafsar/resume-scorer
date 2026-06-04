@@ -719,4 +719,11 @@ export default function App() {
         {/* Action row */}
         <div className={styles.actionRow}>
           <button className={styles.copyBtn} onClick={copyResults}>{copied ? '✓ Copied!' : '⎘ Copy Results'}</button>
-          <button className={styles.shareBtn} onClick={
+          <button className={styles.shareBtn} onClick={shareScore}>↗ Share Score</button>
+          <button className={styles.resetBtn} onClick={reset}>← Analyze Another</button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
