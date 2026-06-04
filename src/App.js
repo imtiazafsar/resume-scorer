@@ -358,6 +358,10 @@ export default function App() {
         <header className={styles.header}>
           <h1 className={styles.title}>Resume<br />Scorer</h1>
           <p className={styles.subtitle}>Drop your CV and get an AI-powered score, dimension breakdown,<br />strengths, and actionable recommendations.</p>
+          <div className={styles.socialProof}>
+            <span className={styles.socialDot} />
+            <span>Trusted by <strong>14,800+</strong> job seekers this month</span>
+          </div>
         </header>
 
         <div className={styles.modeRow}>
@@ -422,17 +426,40 @@ export default function App() {
     return (
       <div className={styles.page}>
         <div className={styles.limitWrap}>
-          <div className={styles.limitIcon}>⏳</div>
-          <h2 className={styles.limitTitle}>Daily limit reached</h2>
+          <div className={styles.limitIcon}>🚀</div>
+          <h2 className={styles.limitTitle}>You're a power user</h2>
           <p className={styles.limitSub}>
-            You've used all <strong>5 free scans</strong> for today.<br />
-            Your limit resets at midnight.
+            You've used all <strong>5 free scans</strong> for today. Upgrade to <strong style={{ color: '#c8f04a' }}>Pro</strong> for unlimited access — no waiting, no resets.
           </p>
-          <div className={styles.limitActions}>
-            <button className={styles.analyzeBtn} onClick={() => { setView('upload'); setFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>
-              ← Go Back
-            </button>
+
+          <div className={styles.proCard}>
+            <div className={styles.proCardHeader}>
+              <span className={styles.proBadge}>Pro Plan</span>
+              <div className={styles.proPrice}><span className={styles.proPriceAmt}>$9.99</span><span className={styles.proPricePer}>/month</span></div>
+            </div>
+            <ul className={styles.proFeatures}>
+              <li><span className={styles.proCheck}>✓</span> Unlimited resume scans</li>
+              <li><span className={styles.proCheck}>✓</span> Job match mode — compare against any role</li>
+              <li><span className={styles.proCheck}>✓</span> ATS keyword analysis</li>
+              <li><span className={styles.proCheck}>✓</span> Priority AI analysis (2× faster)</li>
+              <li><span className={styles.proCheck}>✓</span> 20% off resume rewrites &amp; cover letters</li>
+            </ul>
+            <a
+              href="mailto:imtiazafsar456@gmail.com?subject=Resume%20Scorer%20Pro%20Subscription&body=Hi%2C%20I%27d%20like%20to%20upgrade%20to%20Pro."
+              className={styles.proUpgradeBtn}
+            >
+              Upgrade to Pro →
+            </a>
+            <p className={styles.proGuarantee}>7-day free trial · Cancel anytime · No credit card now</p>
           </div>
+
+          <button
+            className={styles.resetBtn}
+            style={{ marginTop: 4, maxWidth: 220 }}
+            onClick={() => { setView('upload'); setFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+          >
+            ← Wait until midnight instead
+          </button>
         </div>
       </div>
     );
@@ -454,6 +481,7 @@ export default function App() {
   // ── Product result view ──────────────────────────────────────────────────
   if (view === 'product_result' && productResult) {
     const isCL = productResult.type === 'coverletter';
+    const isRewrite = productResult.type === 'rewrite';
     function download() {
       const blob = new Blob([productResult.content], { type: 'text/plain' });
       const a = document.createElement('a');
@@ -478,6 +506,41 @@ export default function App() {
             }}>{productCopied ? '✓ Copied!' : '⎘ Copy'}</button>
             <button className={styles.downloadBtn} onClick={download}>↓ Download .txt</button>
           </div>
+
+          {/* Cross-sell: rewrite buyers → cover letter, CL buyers → rewrite */}
+          {isRewrite && jobDesc && (
+            <div className={styles.premiumCard} style={{ marginTop: 16, background: 'linear-gradient(135deg, #000d2e 0%, #001a33 100%)', borderColor: '#4af0c844' }}>
+              <div className={styles.premiumLeft}>
+                <span className={styles.premiumBadge} style={{ color: '#4af0c8', background: '#4af0c818', borderColor: '#4af0c844' }}>Complete the package</span>
+                <h3 className={styles.premiumTitle}>Add a tailored cover letter</h3>
+                <p className={styles.premiumSub}>You already have the rewritten resume — pair it with a cover letter and send a complete, standout application.</p>
+              </div>
+              <div className={styles.premiumRight}>
+                <span className={styles.premiumPrice} style={{ color: '#4af0c8' }}>$3.99</span>
+                <button className={styles.premiumBtn} style={{ background: '#4af0c8' }}
+                  disabled={clLoading} onClick={() => startCheckout('coverletter')}>
+                  {clLoading ? 'Preparing…' : 'Add Cover Letter →'}
+                </button>
+              </div>
+            </div>
+          )}
+          {isCL && (
+            <div className={styles.premiumCard} style={{ marginTop: 16 }}>
+              <div className={styles.premiumLeft}>
+                <span className={styles.premiumBadge}>Complete the package</span>
+                <h3 className={styles.premiumTitle}>Rewrite your resume too</h3>
+                <p className={styles.premiumSub}>Your cover letter is ready — now make sure your resume is just as strong. AI rewrites every bullet for maximum impact.</p>
+              </div>
+              <div className={styles.premiumRight}>
+                <span className={styles.premiumPrice}>$4.99</span>
+                <button className={styles.premiumBtn}
+                  disabled={rewriteLoading} onClick={() => startCheckout('rewrite')}>
+                  {rewriteLoading ? 'Preparing…' : 'Rewrite Resume →'}
+                </button>
+              </div>
+            </div>
+          )}
+
           <button className={styles.resetBtn} style={{ marginTop: 10 }} onClick={reset}>← Analyze Another Resume</button>
         </div>
       </div>
@@ -502,6 +565,33 @@ export default function App() {
           </div>
         </div>
 
+        {/* Premium: Bundle (job match mode only — shown first for maximum impact) */}
+        {result.jobMatch != null && (
+          <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #1a0d2e 0%, #0d1a1a 100%)', borderColor: '#a855f744', position: 'relative', overflow: 'hidden' }}>
+            <div className={styles.bestValueBanner}>BEST VALUE — SAVE $1</div>
+            <div className={styles.premiumLeft}>
+              <span className={styles.premiumBadge} style={{ color: '#a855f7', background: '#a855f718', borderColor: '#a855f744' }}>Bundle</span>
+              <h3 className={styles.premiumTitle}>Rewritten Resume + Cover Letter</h3>
+              <ul className={styles.premiumBullets}>
+                <li>✓ Full resume rewrite, tailored to this job</li>
+                <li>✓ Role-specific cover letter, ready to send</li>
+                <li>✓ Delivered in under 60 seconds</li>
+              </ul>
+            </div>
+            <div className={styles.premiumRight}>
+              <div style={{ textAlign: 'center' }}>
+                <span className={styles.premiumStrike}>$8.98</span>
+                <span className={styles.premiumPrice} style={{ color: '#a855f7' }}>$7.99</span>
+              </div>
+              <button className={styles.premiumBtn} style={{ background: '#a855f7' }}
+                disabled={(rewriteLoading || clLoading) || !resumeText}
+                onClick={() => startCheckout('bundle')}>
+                {(rewriteLoading || clLoading) ? 'Preparing…' : 'Get Bundle →'}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Premium: Resume Rewrite */}
         <div className={styles.premiumCard}>
           <div className={styles.premiumLeft}>
@@ -509,14 +599,15 @@ export default function App() {
             <h3 className={styles.premiumTitle}>
               {result.jobMatch != null ? 'Get your resume rewritten for this job' : 'Get a professionally rewritten resume'}
             </h3>
-            <p className={styles.premiumSub}>
-              {result.jobMatch != null
-                ? 'AI rewrites every bullet point, adds the right keywords, and tailors your summary — ready to send.'
-                : 'AI rewrites every bullet point with strong action verbs, improves your summary, and optimises for ATS.'}
-            </p>
+            <ul className={styles.premiumBullets}>
+              <li>✓ Every bullet point rewritten with impact verbs</li>
+              <li>✓ Summary optimised for ATS &amp; recruiters</li>
+              <li>✓ {result.jobMatch != null ? 'Targeted keywords from the job description' : 'Industry keywords baked in'}</li>
+            </ul>
+            <p className={styles.premiumTrust}>⚡ Ready in ~30 seconds · 30-day money-back guarantee</p>
           </div>
           <div className={styles.premiumRight}>
-            <span className={styles.premiumPrice}>$2.99</span>
+            <span className={styles.premiumPrice}>$4.99</span>
             <button className={styles.premiumBtn} disabled={rewriteLoading || !resumeText} onClick={() => startCheckout('rewrite')}>
               {rewriteLoading ? 'Preparing…' : 'Rewrite Resume →'}
             </button>
@@ -529,10 +620,15 @@ export default function App() {
             <div className={styles.premiumLeft}>
               <span className={styles.premiumBadge} style={{ color: '#4af0c8', background: '#4af0c818', borderColor: '#4af0c844' }}>Premium</span>
               <h3 className={styles.premiumTitle}>Generate a tailored cover letter</h3>
-              <p className={styles.premiumSub}>AI writes a compelling, role-specific cover letter using your resume and the job description — ready to send.</p>
+              <ul className={styles.premiumBullets} style={{ color: 'var(--text-dim)' }}>
+                <li>✓ Written specifically for this role</li>
+                <li>✓ Uses your experience and their keywords</li>
+                <li>✓ Professional, human-sounding tone</li>
+              </ul>
+              <p className={styles.premiumTrust}>⚡ Ready in ~30 seconds · 30-day money-back guarantee</p>
             </div>
             <div className={styles.premiumRight}>
-              <span className={styles.premiumPrice} style={{ color: '#4af0c8' }}>$1.99</span>
+              <span className={styles.premiumPrice} style={{ color: '#4af0c8' }}>$3.99</span>
               <button className={styles.premiumBtn} style={{ background: '#4af0c8' }} disabled={clLoading || !resumeText} onClick={() => startCheckout('coverletter')}>
                 {clLoading ? 'Preparing…' : 'Write Cover Letter →'}
               </button>
@@ -556,6 +652,28 @@ export default function App() {
             )}
           </div>
         )}
+
+        {/* Premium: LinkedIn Optimizer */}
+        <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #001829 0%, #001020 100%)', borderColor: '#0a66c244' }}>
+          <div className={styles.premiumLeft}>
+            <span className={styles.premiumBadge} style={{ color: '#0a84ff', background: '#0a84ff18', borderColor: '#0a84ff44' }}>New</span>
+            <h3 className={styles.premiumTitle}>LinkedIn Profile Optimizer</h3>
+            <ul className={styles.premiumBullets} style={{ color: 'var(--text-dim)' }}>
+              <li>✓ Headline &amp; About rewritten for recruiter search</li>
+              <li>✓ Skills section tuned for your target role</li>
+              <li>✓ Copy-paste ready in 30 seconds</li>
+            </ul>
+            <p className={styles.premiumTrust}>⚡ 71% more recruiter views · 30-day money-back guarantee</p>
+          </div>
+          <div className={styles.premiumRight}>
+            <span className={styles.premiumPrice} style={{ color: '#0a84ff' }}>$2.99</span>
+            <button className={styles.premiumBtn} style={{ background: '#0a84ff' }}
+              disabled={!resumeText}
+              onClick={() => startCheckout('linkedin')}>
+              Optimise LinkedIn →
+            </button>
+          </div>
+        </div>
 
         {/* ATS Keywords */}
         <KeywordCloud keywords={result.keywords} />

@@ -46,7 +46,7 @@ function exportCSV(candidates, jobTitle) {
 }
 
 export default function Enterprise() {
-  const [view, setView]         = useState('setup');  // setup | extracting | screening | results
+  const [view, setView]         = useState('pricing');  // pricing | setup | extracting | screening | results
   const [jobTitle, setJobTitle]  = useState('');
   const [jobDesc, setJobDesc]    = useState('');
   const [files, setFiles]        = useState([]);
@@ -129,6 +129,60 @@ export default function Enterprise() {
         </div>
         <a href="/" className={s.backLink}>← Back to Resume Scorer</a>
       </div>
+
+      {/* ── Pricing gate ── */}
+      {view === 'pricing' && (
+        <div className={s.body}>
+          <div className={s.pricingWrap}>
+            <h2 className={s.pricingTitle}>Screen candidates in seconds</h2>
+            <p className={s.pricingSubtitle}>Upload up to 10 resumes, paste a job description, and get an AI-ranked shortlist with scores, gaps, and summaries.</p>
+
+            <div className={s.pricingCards}>
+              {/* Pay-per-batch */}
+              <div className={s.pricingCard}>
+                <span className={s.pricingPlan}>Pay per batch</span>
+                <div className={s.pricingAmount}><span className={s.pricingAmt}>$19</span><span className={s.pricingPer}>/batch</span></div>
+                <p className={s.pricingDesc}>Screen up to 10 candidates against one job. One-time payment, results in under 60 seconds.</p>
+                <ul className={s.pricingFeats}>
+                  <li>✓ Up to 10 resumes per run</li>
+                  <li>✓ AI ranked shortlist</li>
+                  <li>✓ Score, grade, strengths &amp; gaps</li>
+                  <li>✓ CSV export</li>
+                </ul>
+                <a
+                  href="mailto:imtiazafsar456@gmail.com?subject=Enterprise%20Batch%20Screening&body=Hi%2C%20I%27d%20like%20to%20purchase%20a%20screening%20batch."
+                  className={s.pricingBtn}
+                >
+                  Buy a batch →
+                </a>
+              </div>
+
+              {/* Monthly plan */}
+              <div className={s.pricingCard} style={{ borderColor: '#c8f04a88', background: 'linear-gradient(135deg, #1a2e05 0%, #0d1a0d 100%)' }}>
+                <span className={s.pricingPopular}>Most Popular</span>
+                <span className={s.pricingPlan} style={{ color: '#c8f04a' }}>Monthly</span>
+                <div className={s.pricingAmount}><span className={s.pricingAmt} style={{ color: '#c8f04a' }}>$99</span><span className={s.pricingPer}>/month</span></div>
+                <p className={s.pricingDesc}>Unlimited batches. For teams actively hiring across multiple roles.</p>
+                <ul className={s.pricingFeats}>
+                  <li>✓ Unlimited screening runs</li>
+                  <li>✓ Up to 10 resumes per run</li>
+                  <li>✓ All batch features</li>
+                  <li>✓ Priority support</li>
+                </ul>
+                <a
+                  href="mailto:imtiazafsar456@gmail.com?subject=Enterprise%20Monthly%20Plan&body=Hi%2C%20I%27d%20like%20to%20subscribe%20to%20the%20monthly%20Enterprise%20plan."
+                  className={s.pricingBtn}
+                  style={{ background: '#c8f04a', color: '#0e0e0e' }}
+                >
+                  Start monthly plan →
+                </a>
+              </div>
+            </div>
+
+            <p className={s.pricingNote}>Not sure? <button className={s.pricingTryLink} onClick={() => setView('setup')}>Try it free with 3 resumes</button> — no payment required.</p>
+          </div>
+        </div>
+      )}
 
       {/* ── Setup ── */}
       {view === 'setup' && (

@@ -399,18 +399,143 @@
 .listItem:last-child { border-bottom: none; padding-bottom: 0; }
 .listIcon { flex-shrink: 0; font-size: 15px; font-weight: 500; margin-top: 1px; }
 
+/* ── Social Proof ────────────────────────────────────────────────────────── */
+.socialProof {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 12px;
+  animation: fadeUp 0.5s 0.15s ease both;
+}
+
+.socialDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #c8f04a;
+  animation: pulse 2s ease infinite;
+}
+
 /* ── Rate Limit ──────────────────────────────────────────────────────────── */
 .limitWrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  margin-top: 100px;
-  max-width: 400px;
+  margin-top: 80px;
+  max-width: 440px;
   text-align: center;
 }
 
 .limitIcon { font-size: 48px; line-height: 1; }
+
+/* ── Pro Card (on rate limit screen) ────────────────────────────────────── */
+.proCard {
+  width: 100%;
+  background: linear-gradient(135deg, #1a2e05 0%, #0d1a0d 100%);
+  border: 0.5px solid #c8f04a55;
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  text-align: left;
+}
+
+.proCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.proBadge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c8f04a;
+  background: #c8f04a18;
+  border: 0.5px solid #c8f04a44;
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+.proPrice { display: flex; align-items: baseline; gap: 2px; }
+.proPriceAmt { font-family: var(--font-display); font-size: 28px; color: #c8f04a; }
+.proPricePer { font-size: 13px; color: var(--text-muted); }
+
+.proFeatures {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.proCheck { color: #c8f04a; font-weight: 700; margin-right: 8px; }
+
+.proUpgradeBtn {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background: #c8f04a;
+  color: #0e0e0e;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.15s;
+  margin-bottom: 10px;
+}
+.proUpgradeBtn:hover { background: var(--accent-dark); }
+
+.proGuarantee { font-size: 12px; color: var(--text-dim); text-align: center; }
+
+/* ── Premium bullets & trust line ────────────────────────────────────────── */
+.premiumBullets {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.premiumTrust {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+.premiumStrike {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-decoration: line-through;
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+/* ── Best Value Banner ───────────────────────────────────────────────────── */
+.bestValueBanner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #a855f7;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 12px;
+  border-radius: 0 var(--radius) 0 var(--radius-sm);
+}
 
 .limitTitle {
   font-family: var(--font-display);
