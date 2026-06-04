@@ -501,6 +501,10 @@ export default function Admin() {
                 value={stats.revenue?.linkedin?.count || 0}
                 sub={`$${((stats.revenue?.linkedin?.total || 0) / 100).toFixed(2)}`}
                 accent="#0a84ff" />
+              <StatCard icon="⭐" label="Pro Subscribers"
+                value={stats.revenue?.pro?.count || 0}
+                sub={`$${((stats.revenue?.pro?.total || 0) / 100).toFixed(2)}`}
+                accent="#c8f04a" />
             </div>
 
             <div className={s.card} style={{ marginBottom: 16 }}>
@@ -522,6 +526,10 @@ export default function Admin() {
                   count={stats.revenue?.linkedin?.count || 0}
                   revenue={stats.revenue?.linkedin?.total || 0}
                   total={totalRevenue || 1} color="#0a84ff" />
+                <RevenueBar label="Pro Subscription ($9.99/mo)"
+                  count={stats.revenue?.pro?.count || 0}
+                  revenue={stats.revenue?.pro?.total || 0}
+                  total={totalRevenue || 1} color="#c8f04a" />
               </div>
             </div>
 
@@ -539,8 +547,8 @@ export default function Admin() {
                 {(stats.revenue?.activity || []).length === 0
                   ? <p className={s.empty}>No purchases recorded yet</p>
                   : (stats.revenue?.activity || []).map((a, i) => {
-                    const LABELS = { rewrite: 'Resume Rewrite', coverletter: 'Cover Letter', bundle: 'Bundle', linkedin: 'LinkedIn Opt.' };
-                    const COLORS = { rewrite: '#c8f04a', coverletter: '#4af0c8', bundle: '#a855f7', linkedin: '#0a84ff' };
+                    const LABELS = { rewrite: 'Resume Rewrite', coverletter: 'Cover Letter', bundle: 'Bundle', linkedin: 'LinkedIn Opt.', pro: 'Pro Subscription' };
+                    const COLORS = { rewrite: '#c8f04a', coverletter: '#4af0c8', bundle: '#a855f7', linkedin: '#0a84ff', pro: '#c8f04a' };
                     return (
                       <TRow key={i} cols="2fr 1fr 90px">
                         <span className={s.cellTime}>{fmtTime(a.ts)}</span>

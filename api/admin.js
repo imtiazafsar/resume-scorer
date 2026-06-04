@@ -61,6 +61,8 @@ export default async function handler(req, res) {
     ['GET', 'revenue:bundle:total'],
     ['GET', 'revenue:linkedin:count'],
     ['GET', 'revenue:linkedin:total'],
+    ['GET', 'revenue:pro:count'],
+    ['GET', 'revenue:pro:total'],
     ['LRANGE', 'revenue:activity', '0', '49'],
     // 7-day trends (2 keys per day: scans + enterprise batches)
     ...days.flatMap(day => [
@@ -82,6 +84,7 @@ export default async function handler(req, res) {
     revCLCount, revCLTotal,
     revBundleCount, revBundleTotal,
     revLinkedInCount, revLinkedInTotal,
+    revProCount, revProTotal,
     revActivity,
     ...dailyRaw
   ] = v;
@@ -103,7 +106,8 @@ export default async function handler(req, res) {
 
   const revTotalCents = Number(revTotal) || 0;
   const totalSales    = (Number(revRewriteCount)   || 0) + (Number(revCLCount)       || 0) +
-                        (Number(revBundleCount)     || 0) + (Number(revLinkedInCount) || 0);
+                        (Number(revBundleCount)     || 0) + (Number(revLinkedInCount) || 0) +
+                        (Number(revProCount)        || 0);
 
   const parseList = list =>
     (list || []).map(s => {
@@ -145,8 +149,3 @@ export default async function handler(req, res) {
       rewrite:     { count: Number(revRewriteCount)   || 0, total: Number(revRewriteTotal)   || 0 },
       coverletter: { count: Number(revCLCount)         || 0, total: Number(revCLTotal)         || 0 },
       bundle:      { count: Number(revBundleCount)     || 0, total: Number(revBundleTotal)     || 0 },
-      linkedin:    { count: Number(revLinkedInCount)   || 0, total: Number(revLinkedInTotal)   || 0 },
-      activity: parseList(revActivity),
-    },
-  });
-}
