@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { extractText } from './extractText';
 import { analyzeResume } from './api';
+import Nav from './Nav';
 import styles from './App.module.css';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -196,10 +197,10 @@ function KeywordCloud({ keywords }) {
 }
 
 // ── Main App ──────────────────────────────────────────────────────────────────
-export default function App() {
+export default function App({ mode: initialMode = 'general' }) {
   const [view, setView] = useState('upload'); // upload | loading | results | rewriting | product_result | rate_limited | pro_success
   const [file, setFile] = useState(null);
-  const [mode, setMode] = useState('general');
+  const mode = initialMode;
   const [jobDesc, setJobDesc] = useState('');
   const [loadingStep, setLoadingStep] = useState(LOADING_STEPS[0]);
   const [result, setResult] = useState(null);
@@ -408,6 +409,7 @@ export default function App() {
     const canAnalyze = file && (mode === 'general' || jobDesc.trim().length > 20);
     return (
       <div className={styles.page}>
+        <Nav active={mode === 'job' ? 'Job Match' : 'General'} />
         {history.length > 0 && (
           <button className={styles.historyToggle} onClick={() => setShowHistory(h => !h)}>
             {showHistory ? '✕ Close' : `History (${history.length})`}
@@ -432,23 +434,14 @@ export default function App() {
           </div>
         )}
 
-        <a href="/enterprise" className={styles.enterpriseBanner}>
-          🏢 Hiring? Screen multiple candidates at once — <strong>Enterprise →</strong>
-        </a>
-
         <header className={styles.header}>
-          <h1 className={styles.title}>Resume<br />Scorer</h1>
-          <p className={styles.subtitle}>Drop your CV and get an AI-powered score, dimension breakdown,<br />strengths, and actionable recommendations.</p>
+          <h1 className={styles.title}>{mode === 'job' ? <>Job<br />Match</> : <>Resume<br />Score</>}</h1>
+          <p className={styles.subtitle}>{mode === 'job' ? 'Upload your resume and paste a job description to get a match score, keyword gaps, and tailored recommendations.' : 'Drop your CV and get an AI-powered score, dimension breakdown, strengths, and actionable recommendations.'}</p>
           <div className={styles.socialProof}>
             <span className={styles.socialDot} />
             <span>Trusted by <strong>14,800+</strong> job seekers this month</span>
           </div>
         </header>
-
-        <div className={styles.modeRow}>
-          <button className={`${styles.modeBtn} ${mode === 'general' ? styles.modeBtnOn : ''}`} onClick={() => setMode('general')}>General Review</button>
-          <button className={`${styles.modeBtn} ${mode === 'job' ? styles.modeBtnOn : ''}`} onClick={() => setMode('job')}>Job Match</button>
-        </div>
 
         {mode === 'job' && (
           <textarea className={styles.jobTextarea} placeholder="Paste the job description here…"

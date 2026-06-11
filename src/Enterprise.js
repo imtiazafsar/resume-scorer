@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { extractText } from './extractText';
 import s from './Enterprise.module.css';
+import Nav from './Nav';
 
 const MAX_FILES      = 25;
 const FREE_DAILY_CAP = 25;
@@ -264,17 +265,7 @@ export default function Enterprise() {
 
   return (
     <div className={s.page}>
-      {/* Top bar */}
-      <div className={s.topBar}>
-        <div className={s.brand}>
-          <span className={s.brandRS}>RS</span>
-          <div>
-            <span className={s.brandName}>Enterprise</span>
-            <span className={s.brandSub}>Candidate Screening Platform</span>
-          </div>
-        </div>
-        <a href="/" className={s.backLink}>← Back to Resume Scorer</a>
-      </div>
+      <Nav active="Enterprise" />
 
       {/* ── Pricing gate ── */}
       {view === 'pricing' && (
