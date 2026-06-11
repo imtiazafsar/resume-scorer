@@ -8,7 +8,7 @@ function fmtTime(iso) {
   });
 }
 function scoreColor(score) {
-  return score >= 80 ? '#d4a017' : score >= 60 ? '#c4855a' : score >= 40 ? '#e09030' : '#c0392b';
+  return score >= 80 ? '#E4002B' : score >= 60 ? '#ff4d6a' : score >= 40 ? '#ff8c00' : '#cc001a';
 }
 
 // ── Stat Card ─────────────────────────────────────────────────────────────────

@@ -130,10 +130,10 @@
 .modeBtnOn {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0d0905;
+  color: #ffffff;
 }
 
-.modeBtnOn:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #0d0905; }
+.modeBtnOn:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #ffffff; }
 
 /* ── Job Description Textarea ────────────────────────────────────────────── */
 .jobTextarea {
@@ -176,7 +176,7 @@
 
 .dropZone:hover, .dropActive {
   border-color: var(--accent);
-  background: #161009;
+  background: #1a0005;
 }
 
 .uploadIcon {
@@ -223,10 +223,10 @@
   line-height: 1;
   transition: color 0.15s;
 }
-.removeBtn:hover { color: #c0392b; }
+.removeBtn:hover { color: #E4002B; }
 
 /* ── Messages ────────────────────────────────────────────────────────────── */
-.errorMsg { color: #c0392b; font-size: 13px; margin-top: 12px; max-width: 560px; text-align: center; }
+.errorMsg { color: #E4002B; font-size: 13px; margin-top: 12px; max-width: 560px; text-align: center; }
 .hintMsg  { color: var(--text-dim); font-size: 13px; margin-top: 10px; text-align: center; }
 
 /* ── Analyze button ──────────────────────────────────────────────────────── */
@@ -236,7 +236,7 @@
   font-size: 15px;
   font-weight: 500;
   background: var(--accent);
-  color: #0d0905;
+  color: #ffffff;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -438,7 +438,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #d4a017;
+  background: #E4002B;
   animation: pulse 2s ease infinite;
 }
 
@@ -458,8 +458,8 @@
 /* ── Pro Card (on rate limit screen) ────────────────────────────────────── */
 .proCard {
   width: 100%;
-  background: linear-gradient(135deg, #1a2e05 0%, #0d1a0d 100%);
-  border: 0.5px solid #d4a01755;
+  background: linear-gradient(135deg, #1a0005 0%, #0d0d0d 100%);
+  border: 0.5px solid #E4002B55;
   border-radius: var(--radius);
   padding: 24px 28px;
   text-align: left;
@@ -477,15 +477,15 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #d4a017;
-  background: #d4a01718;
-  border: 0.5px solid #d4a01744;
+  color: #E4002B;
+  background: #E4002B18;
+  border: 0.5px solid #E4002B44;
   border-radius: 20px;
   padding: 3px 10px;
 }
 
 .proPrice { display: flex; align-items: baseline; gap: 2px; }
-.proPriceAmt { font-family: var(--font-display); font-size: 28px; color: #d4a017; }
+.proPriceAmt { font-family: var(--font-display); font-size: 28px; color: #E4002B; }
 .proPricePer { font-size: 13px; color: var(--text-muted); }
 
 .proFeatures {
@@ -498,14 +498,14 @@
   color: var(--text-muted);
 }
 
-.proCheck { color: #d4a017; font-weight: 700; margin-right: 8px; }
+.proCheck { color: #E4002B; font-weight: 700; margin-right: 8px; }
 
 .proUpgradeBtn {
   display: block;
   width: 100%;
   padding: 13px;
-  background: #d4a017;
-  color: #0d0905;
+  background: #E4002B;
+  color: #ffffff;
   font-size: 15px;
   font-weight: 600;
   border-radius: var(--radius-sm);
@@ -551,7 +551,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  background: #9b6b1e;
+  background: #b3001f;
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -619,7 +619,7 @@
   min-width: 20px;
   border-radius: 50%;
   background: var(--accent);
-  color: #0d0905;
+  color: #ffffff;
   font-size: 11px;
   font-weight: 700;
   margin-top: 2px;
@@ -670,8 +670,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  background: linear-gradient(135deg, #1a1a00 0%, #0d1a0d 100%);
-  border: 0.5px solid #d4a01744;
+  background: linear-gradient(135deg, #1a0005 0%, #0d0d0d 100%);
+  border: 0.5px solid #E4002B44;
   border-radius: var(--radius);
   padding: 24px 28px;
   margin-bottom: 14px;
@@ -685,9 +685,9 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #d4a017;
-  background: #d4a01718;
-  border: 0.5px solid #d4a01744;
+  color: #E4002B;
+  background: #E4002B18;
+  border: 0.5px solid #E4002B44;
   border-radius: 20px;
   padding: 3px 10px;
   margin-bottom: 10px;
@@ -718,7 +718,7 @@
 .premiumPrice {
   font-family: var(--font-display);
   font-size: 28px;
-  color: #d4a017;
+  color: #E4002B;
   line-height: 1;
 }
 
@@ -726,8 +726,8 @@
   padding: 11px 22px;
   font-size: 14px;
   font-weight: 600;
-  background: #d4a017;
-  color: #0d0905;
+  background: #E4002B;
+  color: #ffffff;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -759,17 +759,17 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #d4a017;
-  background: #d4a01718;
-  border: 0.5px solid #d4a01744;
+  color: #E4002B;
+  background: #E4002B18;
+  border: 0.5px solid #E4002B44;
   border-radius: 20px;
   padding: 3px 10px;
 }
 
 /* ── Rewrite Result ───────────────────────────────────────────────────────── */
 .rewriteHero {
-  background: linear-gradient(135deg, #1a1a00 0%, #0d1a0d 100%);
-  border: 0.5px solid #d4a01744;
+  background: linear-gradient(135deg, #1a0005 0%, #0d0d0d 100%);
+  border: 0.5px solid #E4002B44;
   border-radius: var(--radius);
   padding: 24px 28px;
   margin-bottom: 14px;
@@ -781,9 +781,9 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #d4a017;
-  background: #d4a01718;
-  border: 0.5px solid #d4a01744;
+  color: #E4002B;
+  background: #E4002B18;
+  border: 0.5px solid #E4002B44;
   border-radius: 20px;
   padding: 3px 10px;
   margin-bottom: 12px;
@@ -831,7 +831,7 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.downloadBtn:hover { background: var(--accent); color: #0d0905; }
+.downloadBtn:hover { background: var(--accent); color: #ffffff; }
 
 /* ── Action Row ──────────────────────────────────────────────────────────── */
 .actionRow {
@@ -852,7 +852,7 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.copyBtn:hover { background: var(--accent); color: #0d0905; }
+.copyBtn:hover { background: var(--accent); color: #ffffff; }
 
 .resetBtn {
   flex: 1;

@@ -13,19 +13,19 @@ const LOADING_STEPS = [
 ];
 
 const DIMENSION_COLORS = {
-  'Contact & Links': '#d4a017',
-  'Work Experience': '#c4855a',
-  'Skills':          '#e09030',
-  'Education':       '#7b9fcd',
-  'Formatting':      '#c8b090',
-  'Keywords & ATS':  '#c0392b',
+  'Contact & Links': '#E4002B',
+  'Work Experience': '#ff4d6a',
+  'Skills':          '#ff8c00',
+  'Education':       '#4a90d2',
+  'Formatting':      '#b0b0b0',
+  'Keywords & ATS':  '#cc001a',
 };
 
 const GRADE_STYLES = {
-  'Excellent':  { bg: '#2a1d05', text: '#d4a017' },
-  'Good':       { bg: '#0d1a2e', text: '#7b9fcd' },
-  'Average':    { bg: '#2d1a05', text: '#e09030' },
-  'Needs Work': { bg: '#2a0d0a', text: '#c0392b' },
+  'Excellent':  { bg: '#1a0005', text: '#E4002B' },
+  'Good':       { bg: '#0d1a2e', text: '#4a90d2' },
+  'Average':    { bg: '#1a1000', text: '#ff8c00' },
+  'Needs Work': { bg: '#1a0005', text: '#cc001a' },
 };
 
 const HISTORY_KEY = 'resume_scorer_history';
@@ -43,7 +43,7 @@ function saveToHistory(entry) {
 }
 
 // ── Confetti ─────────────────────────────────────────────────────────────────
-const CONFETTI_COLORS = ['#d4a017', '#c4855a', '#e09030', '#7b9fcd', '#c8b090'];
+const CONFETTI_COLORS = ['#E4002B', '#ff4d6a', '#ff8c00', '#4a90d2', '#ffffff'];
 
 function useConfetti(trigger) {
   const [pieces, setPieces] = useState([]);
@@ -103,7 +103,7 @@ function AnimatedNumber({ target }) {
 function ScoreRing({ score }) {
   const r = 54, circ = 2 * Math.PI * r;
   const dash = (score / 100) * circ;
-  const color = score >= 80 ? '#d4a017' : score >= 60 ? '#c4855a' : score >= 40 ? '#e09030' : '#c0392b';
+  const color = score >= 80 ? '#E4002B' : score >= 60 ? '#ff4d6a' : score >= 40 ? '#ff8c00' : '#cc001a';
   return (
     <div className={styles.ringWrap}>
       <svg width="140" height="140" viewBox="0 0 140 140" style={{ transform: 'rotate(-90deg)' }}>
@@ -173,20 +173,20 @@ function KeywordCloud({ keywords }) {
       <h3 className={styles.sectionTitle}>ATS Keywords</h3>
       {matched.length > 0 && (
         <div className={styles.kwGroup}>
-          <span className={styles.kwGroupLabel} style={{ color: '#d4a017' }}>✓ Matched</span>
+          <span className={styles.kwGroupLabel} style={{ color: '#E4002B' }}>✓ Matched</span>
           <div className={styles.kwTags}>
             {matched.map((k, i) => (
-              <span key={i} className={styles.kwTag} style={{ background: '#2a1d0588', borderColor: '#d4a01755', color: '#d4a017' }}>{k}</span>
+              <span key={i} className={styles.kwTag} style={{ background: '#1a000588', borderColor: '#E4002B55', color: '#E4002B' }}>{k}</span>
             ))}
           </div>
         </div>
       )}
       {missing.length > 0 && (
         <div className={styles.kwGroup}>
-          <span className={styles.kwGroupLabel} style={{ color: '#c0392b' }}>✗ Missing</span>
+          <span className={styles.kwGroupLabel} style={{ color: '#cc001a' }}>✗ Missing</span>
           <div className={styles.kwTags}>
             {missing.map((k, i) => (
-              <span key={i} className={styles.kwTag} style={{ background: '#2a0d0a88', borderColor: '#c0392b55', color: '#c0392b' }}>{k}</span>
+              <span key={i} className={styles.kwTag} style={{ background: '#1a000888', borderColor: '#cc001a55', color: '#cc001a' }}>{k}</span>
             ))}
           </div>
         </div>
@@ -417,7 +417,7 @@ export default function App() {
           <div className={styles.historyPanel}>
             <p className={styles.historyHeading}>Previous Analyses</p>
             {history.map(h => {
-              const color = h.score >= 80 ? '#d4a017' : h.score >= 60 ? '#c4855a' : h.score >= 40 ? '#e09030' : '#c0392b';
+              const color = h.score >= 80 ? '#E4002B' : h.score >= 60 ? '#ff4d6a' : h.score >= 40 ? '#ff8c00' : '#cc001a';
               return (
                 <div key={h.id} className={styles.historyItem}
                   onClick={() => { setResult(h.result); setView('results'); setShowHistory(false); }}>
@@ -510,7 +510,7 @@ export default function App() {
           <div className={styles.limitIcon}>🚀</div>
           <h2 className={styles.limitTitle}>You're a power user</h2>
           <p className={styles.limitSub}>
-            You've used all <strong>5 free scans</strong> for today. Upgrade to <strong style={{ color: '#d4a017' }}>Pro</strong> for unlimited access — no waiting, no resets.
+            You've used all <strong>5 free scans</strong> for today. Upgrade to <strong style={{ color: '#E4002B' }}>Pro</strong> for unlimited access — no waiting, no resets.
           </p>
 
           <div className={styles.proCard}>
@@ -554,7 +554,7 @@ export default function App() {
           <div className={styles.limitIcon}>🎉</div>
           <h2 className={styles.limitTitle}>You're now Pro!</h2>
           <p className={styles.limitSub}>
-            Your subscription is active. You now have <strong style={{ color: '#d4a017' }}>unlimited</strong> resume scans — no daily limits, ever.
+            Your subscription is active. You now have <strong style={{ color: '#E4002B' }}>unlimited</strong> resume scans — no daily limits, ever.
           </p>
           <button
             className={styles.analyzeBtn}
@@ -564,7 +564,7 @@ export default function App() {
             Start scanning →
           </button>
           <p className={styles.proGuarantee} style={{ marginTop: 12 }}>
-            If you ever have issues, email <a href="mailto:imtiazafsar456@gmail.com" style={{ color: '#d4a017' }}>imtiazafsar456@gmail.com</a>
+            If you ever have issues, email <a href="mailto:imtiazafsar456@gmail.com" style={{ color: '#E4002B' }}>imtiazafsar456@gmail.com</a>
           </p>
         </div>
       </div>
@@ -636,7 +636,7 @@ export default function App() {
               </div>
               <div className={styles.bundleSection} style={{ marginTop: 14 }}>
                 <div className={styles.bundleSectionHeader}>
-                  <span className={styles.bundleSectionTag} style={{ color: '#c4855a', background: '#c4855a18', borderColor: '#c4855a44' }}>Cover Letter</span>
+                  <span className={styles.bundleSectionTag} style={{ color: '#ff4d6a', background: '#ff4d6a18', borderColor: '#ff4d6a44' }}>Cover Letter</span>
                 </div>
                 <div className={styles.rewriteBox}>
                   <pre className={styles.rewriteText}>{productResult.bundleCoverLetter}</pre>
@@ -667,15 +667,15 @@ export default function App() {
 
               {/* Cross-sell: rewrite → cover letter, CL → rewrite */}
               {isRewrite && jobDesc && (
-                <div className={styles.premiumCard} style={{ marginTop: 16, background: 'linear-gradient(135deg, #160e05 0%, #1a1207 100%)', borderColor: '#c4855a44' }}>
+                <div className={styles.premiumCard} style={{ marginTop: 16, background: 'linear-gradient(135deg, #1a0005 0%, #0d0d0d 100%)', borderColor: '#ff4d6a44' }}>
                   <div className={styles.premiumLeft}>
-                    <span className={styles.premiumBadge} style={{ color: '#c4855a', background: '#c4855a18', borderColor: '#c4855a44' }}>Complete the package</span>
+                    <span className={styles.premiumBadge} style={{ color: '#ff4d6a', background: '#ff4d6a18', borderColor: '#ff4d6a44' }}>Complete the package</span>
                     <h3 className={styles.premiumTitle}>Add a tailored cover letter</h3>
                     <p className={styles.premiumSub}>Pair your rewritten resume with a role-specific cover letter and send a complete, standout application.</p>
                   </div>
                   <div className={styles.premiumRight}>
-                    <span className={styles.premiumPrice} style={{ color: '#c4855a' }}>$3.99</span>
-                    <button className={styles.premiumBtn} style={{ background: '#c4855a' }}
+                    <span className={styles.premiumPrice} style={{ color: '#ff4d6a' }}>$3.99</span>
+                    <button className={styles.premiumBtn} style={{ background: '#ff4d6a' }}
                       onClick={() => startCheckout('coverletter')}>
                       Add Cover Letter →
                     </button>
@@ -776,9 +776,9 @@ export default function App() {
 
         {/* Premium: Cover Letter (job match mode only) */}
         {result.jobMatch != null && (
-          <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #160e05 0%, #1a1207 100%)', borderColor: '#c4855a44' }}>
+          <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #1a0005 0%, #0d0d0d 100%)', borderColor: '#ff4d6a44' }}>
             <div className={styles.premiumLeft}>
-              <span className={styles.premiumBadge} style={{ color: '#c4855a', background: '#c4855a18', borderColor: '#c4855a44' }}>Premium</span>
+              <span className={styles.premiumBadge} style={{ color: '#ff4d6a', background: '#ff4d6a18', borderColor: '#ff4d6a44' }}>Premium</span>
               <h3 className={styles.premiumTitle}>Generate a tailored cover letter</h3>
               <ul className={styles.premiumBullets} style={{ color: 'var(--text-dim)' }}>
                 <li>✓ Written specifically for this role</li>
@@ -788,8 +788,8 @@ export default function App() {
               <p className={styles.premiumTrust}>⚡ Ready in ~30 seconds · 30-day money-back guarantee</p>
             </div>
             <div className={styles.premiumRight}>
-              <span className={styles.premiumPrice} style={{ color: '#c4855a' }}>$3.99</span>
-              <button className={styles.premiumBtn} style={{ background: '#c4855a' }} disabled={!resumeText} onClick={() => startCheckout('coverletter')}>
+              <span className={styles.premiumPrice} style={{ color: '#ff4d6a' }}>$3.99</span>
+              <button className={styles.premiumBtn} style={{ background: '#ff4d6a' }} disabled={!resumeText} onClick={() => startCheckout('coverletter')}>
                 Write Cover Letter →
               </button>
             </div>
@@ -801,7 +801,7 @@ export default function App() {
           <div className={styles.jobMatchCard}>
             <div className={styles.jobMatchTop}>
               <span className={styles.jobMatchLabel}>Job Match</span>
-              <span className={styles.jobMatchPct} style={{ color: result.jobMatch >= 70 ? '#d4a017' : result.jobMatch >= 50 ? '#e09030' : '#c0392b' }}>
+              <span className={styles.jobMatchPct} style={{ color: result.jobMatch >= 70 ? '#E4002B' : result.jobMatch >= 50 ? '#ff8c00' : '#cc001a' }}>
                 <AnimatedNumber target={result.jobMatch} />%
               </span>
             </div>
@@ -854,7 +854,7 @@ export default function App() {
           <h3 className={styles.sectionTitle}>Strengths</h3>
           <ul className={styles.list}>
             {result.strengths.map((s, i) => (
-              <li key={i} className={styles.listItem}><span className={styles.listIcon} style={{ color: '#d4a017' }}>✓</span>{s}</li>
+              <li key={i} className={styles.listItem}><span className={styles.listIcon} style={{ color: '#E4002B' }}>✓</span>{s}</li>
             ))}
           </ul>
         </section>
@@ -864,7 +864,7 @@ export default function App() {
           <h3 className={styles.sectionTitle}>Recommendations</h3>
           <ul className={styles.list}>
             {result.recommendations.map((r, i) => (
-              <li key={i} className={styles.listItem}><span className={styles.listIcon} style={{ color: '#e09030' }}>→</span>{r}</li>
+              <li key={i} className={styles.listItem}><span className={styles.listIcon} style={{ color: '#ff8c00' }}>→</span>{r}</li>
             ))}
           </ul>
         </section>

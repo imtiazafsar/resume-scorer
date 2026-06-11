@@ -5,24 +5,24 @@
 }
 
 :root {
-  --bg: #0d0905;
-  --bg-card: #161009;
-  --bg-hover: #201610;
-  --border: #3a2910;
-  --border-hover: #5a4020;
-  --text: #f0e4c8;
-  --text-muted: #957555;
-  --text-dim: #5a4035;
-  --accent: #d4a017;
-  --accent-dark: #b88a0e;
-  --font-display: 'Cormorant Garamond', serif;
+  --bg: #0d0d0d;
+  --bg-card: #161616;
+  --bg-hover: #1e1e1e;
+  --border: #2a2a2a;
+  --border-hover: #3d3d3d;
+  --text: #ffffff;
+  --text-muted: #a0a0a0;
+  --text-dim: #555555;
+  --accent: #E4002B;
+  --accent-dark: #b3001f;
+  --font-display: 'DM Sans', sans-serif;
   --font-body: 'DM Sans', sans-serif;
   --radius: 12px;
   --radius-sm: 8px;
 }
 
 html, body {
-  background: radial-gradient(ellipse at 50% 0%, #1e1205 0%, #0d0905 60%);
+  background: radial-gradient(ellipse at 50% 0%, #1a0005 0%, #0d0d0d 60%);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 15px;

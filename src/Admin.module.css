@@ -25,7 +25,7 @@
   font-family: var(--font-display);
   font-size: 36px;
   color: var(--accent);
-  background: #1a2e05;
+  background: #1a0005;
   border: 0.5px solid var(--accent);
   border-radius: 12px;
   width: 56px;
@@ -61,7 +61,7 @@
   box-sizing: border-box;
 }
 .loginInput:focus { outline: none; border-color: var(--accent); }
-.loginError { color: #c0392b; font-size: 13px; margin: 0; }
+.loginError { color: #E4002B; font-size: 13px; margin: 0; }
 
 .loginBtn {
   width: 100%;
@@ -69,7 +69,7 @@
   font-size: 15px;
   font-weight: 600;
   background: var(--accent);
-  color: #0d0905;
+  color: #ffffff;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -135,9 +135,9 @@
 }
 .tab:hover { background: rgba(255,255,255,0.05); color: var(--text); }
 .tabOn {
-  background: #d4a01718;
+  background: #E4002B18;
   color: var(--accent);
-  border: 0.5px solid #d4a01733;
+  border: 0.5px solid #E4002B33;
 }
 
 .topActions { display: flex; gap: 8px; flex-shrink: 0; }
@@ -165,23 +165,23 @@
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
-.logoutBtn:hover { border-color: #c0392b; color: #c0392b; }
+.logoutBtn:hover { border-color: #E4002B; color: #E4002B; }
 
 .fetchErr {
-  background: #2e0505;
-  color: #c0392b;
+  background: #1a0005;
+  color: #E4002B;
   font-size: 13px;
   padding: 10px 28px;
-  border-bottom: 0.5px solid #c0392b44;
+  border-bottom: 0.5px solid #E4002B44;
 }
 
 /* ── Notice ──────────────────────────────────────────────────────────────── */
 .notice {
-  background: #1a1a00;
-  border-bottom: 0.5px solid #e0903044;
+  background: #1a0005;
+  border-bottom: 0.5px solid #E4002B44;
   padding: 12px 28px;
   font-size: 13px;
-  color: #e09030;
+  color: #E4002B;
   line-height: 1.6;
 }
 .notice code {
