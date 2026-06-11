@@ -582,3 +582,91 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+/* ── Progress Bar ────────────────────────────────────────────────────────── */
+.progressBar {
+  width: 100%;
+  max-width: 400px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.progressLabel {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* ── Filter / Sort Bar ───────────────────────────────────────────────────── */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.filterTab {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: transparent;
+  border: 0.5px solid var(--border);
+  border-radius: 100px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.filterTab:hover { border-color: var(--border-hover); color: var(--text); }
+
+.filterTabOn {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #E4002B18;
+  border: 0.5px solid #E4002B44;
+  border-radius: 100px;
+  color: #E4002B;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+/* ── Pro Token Toggle ────────────────────────────────────────────────────── */
+.proToggle {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+.proToggle:hover { color: var(--accent); }
+
+/* ── Results table: 8 columns (add Exp.) ────────────────────────────────── */
+.tableHead,
+.tableRow {
+  grid-template-columns: 50px 1fr 80px 120px 80px 1fr 1fr 30px;
+}
+
+@media (max-width: 1100px) {
+  .tableHead,
+  .tableRow { grid-template-columns: 40px 1fr 70px 100px 1fr 30px; }
+  .tableHead span:nth-child(5),
+  .tableRow span:nth-child(5),
+  .tableHead span:nth-child(7),
+  .tableRow .gapCell { display: none; }
+}
