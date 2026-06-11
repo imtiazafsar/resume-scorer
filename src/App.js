@@ -677,7 +677,7 @@ export default function App() {
                     <span className={styles.premiumPrice} style={{ color: '#c4855a' }}>$3.99</span>
                     <button className={styles.premiumBtn} style={{ background: '#c4855a' }}
                       onClick={() => startCheckout('coverletter')}>
-                      'Add Cover Letter →'
+                      Add Cover Letter →
                     </button>
                   </div>
                 </div>
@@ -693,7 +693,7 @@ export default function App() {
                     <span className={styles.premiumPrice}>$4.99</span>
                     <button className={styles.premiumBtn}
                       onClick={() => startCheckout('rewrite')}>
-                      'Rewrite Resume →'
+                      Rewrite Resume →
                     </button>
                   </div>
                 </div>
@@ -746,7 +746,7 @@ export default function App() {
               <button className={styles.premiumBtn} style={{ background: '#a855f7' }}
                 disabled={!resumeText}
                 onClick={() => startCheckout('bundle')}>
-                'Get Bundle →'
+                Get Bundle →
               </button>
             </div>
           </div>
@@ -769,7 +769,7 @@ export default function App() {
           <div className={styles.premiumRight}>
             <span className={styles.premiumPrice}>$4.99</span>
             <button className={styles.premiumBtn} disabled={!resumeText} onClick={() => startCheckout('rewrite')}>
-              'Rewrite Resume →'
+              Rewrite Resume →
             </button>
           </div>
         </div>
@@ -790,7 +790,7 @@ export default function App() {
             <div className={styles.premiumRight}>
               <span className={styles.premiumPrice} style={{ color: '#c4855a' }}>$3.99</span>
               <button className={styles.premiumBtn} style={{ background: '#c4855a' }} disabled={!resumeText} onClick={() => startCheckout('coverletter')}>
-                'Write Cover Letter →'
+                Write Cover Letter →
               </button>
             </div>
           </div>
@@ -830,7 +830,7 @@ export default function App() {
             <button className={styles.premiumBtn} style={{ background: '#0a84ff' }}
               disabled={!resumeText}
               onClick={() => startCheckout('linkedin')}>
-              'Optimise LinkedIn →'
+              Optimise LinkedIn →
             </button>
           </div>
         </div>
