@@ -1,0 +1,747 @@
+/* ─── Root ─────────────────────────────────────────────────────────────────── */
+.portal {
+  min-height: 100vh;
+  background: #0d0d0d;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Access Gate ──────────────────────────────────────────────────────────── */
+.gateWrap {
+  min-height: 100vh;
+  background: #0d0d0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.gateBox {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+}
+
+.gateLogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.gateLogoMark {
+  background: #E4002B;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gateLogoName {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.gateLogoSub {
+  font-size: 12px;
+  color: #888;
+  text-align: left;
+  margin-top: 2px;
+}
+
+.gateDesc {
+  color: #aaa;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.gateInputRow {
+  display: flex;
+  gap: 10px;
+}
+
+.gateInput {
+  flex: 1;
+  background: #1a1a1a;
+  border: 1.5px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  padding: 11px 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.gateInput:focus { border-color: #E4002B; }
+
+.gateBtn {
+  background: #E4002B;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+}
+
+.gateBtn:hover { background: #c8001f; }
+
+.gateErr {
+  color: #ff4d6a;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.gateContact {
+  color: #555;
+  font-size: 13px;
+  margin-top: 28px;
+}
+
+.gateContact a {
+  color: #E4002B;
+  text-decoration: none;
+}
+
+.gateContact a:hover { text-decoration: underline; }
+
+/* ─── Header ───────────────────────────────────────────────────────────────── */
+.header {
+  background: #111;
+  border-bottom: 1px solid #222;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.headerInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerLogoMark {
+  background: #E4002B;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.headerSub {
+  font-size: 11px;
+  color: #666;
+  margin-top: 1px;
+}
+
+.headerBadge {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 100px;
+  color: #aaa;
+  font-size: 11px;
+  padding: 5px 12px;
+}
+
+/* ─── Main ─────────────────────────────────────────────────────────────────── */
+.main {
+  flex: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ─── Role Setup ───────────────────────────────────────────────────────────── */
+.roleSetup {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.setupLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #E4002B;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+.setupGrid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 680px) {
+  .setupGrid { grid-template-columns: 1fr; }
+}
+
+.setupField, .setupFieldWide {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 11px;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.setupInput, .setupTextarea {
+  background: #1a1a1a;
+  border: 1.5px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  padding: 10px 13px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+  resize: vertical;
+}
+
+.setupInput:focus,
+.setupTextarea:focus { border-color: #E4002B; }
+
+/* ─── Mode Tabs ────────────────────────────────────────────────────────────── */
+.modeTabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.modeTab {
+  background: #141414;
+  border: 1.5px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'DM Sans', sans-serif;
+  color: #aaa;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.modeTab:hover {
+  background: #1a1a1a;
+  border-color: #444;
+  color: #fff;
+}
+
+.modeTabActive {
+  background: #1a0004;
+  border-color: #E4002B;
+  color: #fff;
+}
+
+.modeIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.modeLabel {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.modeSub {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.modeTabActive .modeSub { color: #aaa; }
+
+/* ─── Section content ──────────────────────────────────────────────────────── */
+.sectionContent {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.sectionIntro p {
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 8px;
+}
+
+.supportedFormats {
+  font-size: 12px;
+  color: #666;
+}
+
+.tipBox {
+  background: #1a1200;
+  border: 1px solid #3a2800;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #cc9900;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+/* ─── LinkedIn Input ───────────────────────────────────────────────────────── */
+.inputArea {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inputRow { display: flex; gap: 10px; }
+
+.nameInput {
+  width: 100%;
+  background: #1a1a1a;
+  border: 1.5px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  padding: 10px 13px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.nameInput:focus { border-color: #E4002B; }
+
+.profileTextarea {
+  background: #1a1a1a;
+  border: 1.5px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 12px 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.profileTextarea:focus { border-color: #E4002B; }
+
+.addBtn {
+  align-self: flex-end;
+  background: #E4002B;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+}
+
+.addBtn:hover:not(:disabled) { background: #c8001f; }
+.addBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ─── Queue ────────────────────────────────────────────────────────────────── */
+.queue {
+  margin-top: 20px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.queueHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.queueTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.clearBtn {
+  background: none;
+  border: 1px solid #333;
+  color: #666;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.clearBtn:hover { border-color: #555; color: #aaa; }
+
+.queueItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #222;
+}
+
+.queueItem:last-of-type { border-bottom: none; }
+
+.queueIcon { font-size: 16px; }
+.queueName { flex: 1; font-size: 13px; font-weight: 600; }
+.queueLen { font-size: 11px; color: #555; }
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  transition: color 0.15s;
+}
+
+.removeBtn:hover { color: #ff4d6a; }
+
+/* ─── Screen button ────────────────────────────────────────────────────────── */
+.screenBtn {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  background: #E4002B;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.screenBtn:hover:not(:disabled) { background: #c8001f; }
+.screenBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ─── Drop zone ────────────────────────────────────────────────────────────── */
+.dropZone {
+  border: 2px dashed #333;
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dropZone:hover, .dropActive {
+  border-color: #E4002B;
+  background: #1a0004;
+}
+
+.dropIcon { font-size: 36px; margin-bottom: 10px; }
+.dropText { font-size: 15px; font-weight: 600; color: #ccc; }
+.dropSub  { font-size: 12px; color: #555; margin-top: 6px; }
+
+/* ─── File list ────────────────────────────────────────────────────────────── */
+.fileList {
+  margin-top: 16px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.fileListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #888;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid #222;
+}
+
+.fileItem:last-child { border-bottom: none; }
+.fileIcon { font-size: 15px; }
+.fileName { flex: 1; font-size: 13px; color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fileSize { font-size: 11px; color: #555; }
+
+/* ─── Error ────────────────────────────────────────────────────────────────── */
+.errorMsg {
+  background: #1a0004;
+  border: 1px solid #4d0010;
+  border-radius: 8px;
+  color: #ff4d6a;
+  font-size: 13px;
+  padding: 12px 16px;
+  margin-top: 16px;
+  line-height: 1.5;
+}
+
+/* ─── Results top bar ──────────────────────────────────────────────────────── */
+.resultsTopBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+.resultsFor {
+  font-size: 15px;
+  color: #ccc;
+}
+
+.resultsFor strong { color: #fff; }
+
+.newSearchBtn {
+  background: none;
+  border: 1px solid #333;
+  color: #aaa;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.newSearchBtn:hover { border-color: #555; color: #fff; }
+
+/* ─── Results wrapper ──────────────────────────────────────────────────────── */
+.resultsWrap { display: flex; flex-direction: column; gap: 0; }
+
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.resultsStats { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.statPill {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 100px;
+  font-size: 12px;
+  padding: 4px 12px;
+  color: #aaa;
+}
+
+.exportBtn {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #aaa;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.exportBtn:hover { border-color: #555; color: #fff; }
+
+/* ─── Candidate cards ──────────────────────────────────────────────────────── */
+.candidateList { display: flex; flex-direction: column; gap: 8px; }
+
+.candidateCard {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.candidateCard:hover { border-color: #3a3a3a; }
+.cardExpanded { border-color: #E4002B !important; }
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+.rankNum {
+  font-size: 22px;
+  font-weight: 900;
+  color: #333;
+  min-width: 36px;
+  text-align: center;
+}
+
+.cardExpanded .rankNum { color: #E4002B; }
+
+.candidateInfo { flex: 1; min-width: 0; }
+.candidateName { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.candidateTitle { font-size: 12px; color: #888; margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.candidateMeta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.gradeBadge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.recoBadge {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.expBadge {
+  font-size: 11px;
+  color: #666;
+  background: #222;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.cardChevron { color: #555; font-size: 11px; flex-shrink: 0; }
+
+/* ─── Card expanded body ───────────────────────────────────────────────────── */
+.cardBody {
+  border-top: 1px solid #2a2a2a;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 560px) { .twoCol { grid-template-columns: 1fr; } }
+
+.strengthBox, .gapBox, .summaryRow, .skillsRow, .achieveRow {
+  background: #141414;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.boxLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.boxText {
+  font-size: 13px;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+.summaryText {
+  font-size: 13px;
+  color: #bbb;
+  line-height: 1.6;
+}
+
+.skillTags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+
+.skillTag {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 100px;
+  font-size: 12px;
+  color: #aaa;
+  padding: 3px 10px;
+}
+
+.achieveList {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  color: #bbb;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ─── Footer ───────────────────────────────────────────────────────────────── */
+.footer {
+  text-align: center;
+  padding: 20px 24px;
+  font-size: 12px;
+  color: #444;
+  border-top: 1px solid #1a1a1a;
+}
