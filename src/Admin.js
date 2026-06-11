@@ -8,7 +8,7 @@ function fmtTime(iso) {
   });
 }
 function scoreColor(score) {
-  return score >= 80 ? '#c8f04a' : score >= 60 ? '#4af0c8' : score >= 40 ? '#f0c84a' : '#f04a4a';
+  return score >= 80 ? '#d4a017' : score >= 60 ? '#c4855a' : score >= 40 ? '#e09030' : '#c0392b';
 }
 
 // ── Stat Card ─────────────────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ function StatCard({ label, value, sub, accent, icon }) {
 }
 
 // ── SVG Bar Chart (7-day trend) ───────────────────────────────────────────────
-function BarChart({ data, color = '#c8f04a', height = 90 }) {
+function BarChart({ data, color = '#d4a017', height = 90 }) {
   if (!data || !data.length) return <p className={s.empty}>No data yet</p>;
   const max = Math.max(...data.map(d => d.value), 1);
   const barW = 60 / data.length;
@@ -86,7 +86,7 @@ function GradeBar({ label, count, total, color }) {
 function Histogram({ scores }) {
   const buckets = ['0–20', '21–40', '41–60', '61–80', '81–100'];
   const ranges  = [[0,20],[21,40],[41,60],[61,80],[81,100]];
-  const colors  = ['#f04a4a', '#f0a84a', '#f0c84a', '#4af0c8', '#c8f04a'];
+  const colors  = ['#c0392b', '#f0a84a', '#e09030', '#c4855a', '#d4a017'];
   const counts  = ranges.map(([lo, hi]) => scores.filter(n => n >= lo && n <= hi).length);
   const max     = Math.max(...counts, 1);
   return (
@@ -128,15 +128,15 @@ function ModeDonut({ general, job }) {
       </svg>
       <div className={s.donutLegend}>
         <div className={s.donutItem}>
-          <span className={s.donutDot} style={{ background: '#c8f04a' }} />
+          <span className={s.donutDot} style={{ background: '#d4a017' }} />
           <span className={s.donutName}>General</span>
           <strong className={s.donutNum}>{general}</strong>
           <span className={s.donutPct}>{Math.round(genFrac * 100)}%</span>
         </div>
         <div className={s.donutItem}>
-          <span className={s.donutDot} style={{ background: '#4af0c8' }} />
+          <span className={s.donutDot} style={{ background: '#c4855a' }} />
           <span className={s.donutName}>Job Match</span>
-          <strong className={s.donutNum} style={{ color: '#4af0c8' }}>{job}</strong>
+          <strong className={s.donutNum} style={{ color: '#c4855a' }}>{job}</strong>
           <span className={s.donutPct}>{Math.round(jobFrac * 100)}%</span>
         </div>
       </div>
@@ -318,7 +318,7 @@ export default function Admin() {
               <StatCard icon="⭐" label="Avg Score"
                 value={avgScore != null ? avgScore : '—'}
                 sub="/100"
-                accent={avgScore >= 80 ? '#c8f04a' : avgScore >= 60 ? '#4af0c8' : '#f0c84a'} />
+                accent={avgScore >= 80 ? '#d4a017' : avgScore >= 60 ? '#c4855a' : '#e09030'} />
               <StatCard icon="💰" label="Est. Revenue"
                 value={`$${(totalRevenue / 100).toFixed(2)}`}
                 sub={`${stats.revenue?.totalSales || 0} sales`}
@@ -328,7 +328,7 @@ export default function Admin() {
                 sub={`${stats.enterprise?.total || 0} candidates`} />
               <StatCard icon="⚠️" label="Errors"
                 value={stats.errors}
-                accent={stats.errors > 0 ? '#f04a4a' : undefined} />
+                accent={stats.errors > 0 ? '#c0392b' : undefined} />
             </div>
 
             <div className={s.chartsRow}>
@@ -377,11 +377,11 @@ export default function Admin() {
                   <span className={s.costLbl}>Output tokens</span>
                 </div>
                 <div className={s.costItem}>
-                  <span className={s.costNum} style={{ color: '#c8f04a' }}>${stats.costUSD}</span>
+                  <span className={s.costNum} style={{ color: '#d4a017' }}>${stats.costUSD}</span>
                   <span className={s.costLbl}>Est. AI cost (USD)</span>
                 </div>
                 <div className={s.costItem}>
-                  <span className={s.costNum} style={{ color: totalRevenue / 100 - stats.costUSD > 0 ? '#c8f04a' : '#f04a4a' }}>
+                  <span className={s.costNum} style={{ color: totalRevenue / 100 - stats.costUSD > 0 ? '#d4a017' : '#c0392b' }}>
                     ${((totalRevenue / 100) - stats.costUSD).toFixed(2)}
                   </span>
                   <span className={s.costLbl}>Est. profit</span>
@@ -398,9 +398,9 @@ export default function Admin() {
               <StatCard icon="📈" label="Total Scans"  value={stats.total.toLocaleString()} />
               <StatCard icon="📅" label="Today"        value={stats.today} />
               <StatCard icon="⭐" label="Avg Score"    value={avgScore != null ? `${avgScore}/100` : '—'}
-                accent={avgScore >= 80 ? '#c8f04a' : avgScore >= 60 ? '#4af0c8' : '#f0c84a'} />
+                accent={avgScore >= 80 ? '#d4a017' : avgScore >= 60 ? '#c4855a' : '#e09030'} />
               <StatCard icon="⚠️" label="Errors"       value={stats.errors}
-                accent={stats.errors > 0 ? '#f04a4a' : undefined} />
+                accent={stats.errors > 0 ? '#c0392b' : undefined} />
             </div>
 
             <div className={s.midRow}>
@@ -432,16 +432,17 @@ export default function Admin() {
                 <span className={s.cardHint}>{stats.activity.length} entries shown</span>
               </h3>
               <div className={s.tableWrap}>
-                <TRow cols="2fr 80px 100px 110px 80px" style={{ borderBottom: '0.5px solid var(--border)', paddingBottom: 8 }}>
-                  {['Time','Score','Grade','Mode','Tokens'].map(h => (
+                <TRow cols="1.5fr 2fr 80px 100px 110px 80px" style={{ borderBottom: '0.5px solid var(--border)', paddingBottom: 8 }}>
+                  {['Time','File','Score','Grade','Mode','Tokens'].map(h => (
                     <span key={h} className={s.tableHead}>{h}</span>
                   ))}
                 </TRow>
                 {stats.activity.length === 0
                   ? <p className={s.empty}>No activity yet</p>
                   : stats.activity.map((a, i) => (
-                    <TRow key={i} cols="2fr 80px 100px 110px 80px">
+                    <TRow key={i} cols="1.5fr 2fr 80px 100px 110px 80px">
                       <span className={s.cellTime}>{fmtTime(a.ts)}</span>
+                      <span className={s.cellMuted} style={{ fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={a.filename || ''}>{a.filename || '—'}</span>
                       <span style={{ color: scoreColor(a.score), fontWeight: 600 }}>{a.score}/100</span>
                       <span className={s.cellMuted}>{a.grade}</span>
                       <span className={s.cellMuted}>{a.mode === 'job' ? '🎯 Job Match' : '📋 General'}</span>
@@ -463,7 +464,7 @@ export default function Admin() {
               <StatCard icon="⭐" label="Avg Candidate Score"
                 value={stats.enterprise?.avgScore != null ? `${stats.enterprise.avgScore}` : '—'}
                 sub="/100"
-                accent={stats.enterprise?.avgScore >= 70 ? '#c8f04a' : '#f0c84a'} />
+                accent={stats.enterprise?.avgScore >= 70 ? '#d4a017' : '#e09030'} />
             </div>
 
             <div className={s.card} style={{ marginBottom: 16 }}>
@@ -565,14 +566,14 @@ export default function Admin() {
                   ? <p className={s.empty}>No purchases recorded yet</p>
                   : (stats.revenue?.activity || []).map((a, i) => {
                     const LABELS = { rewrite: 'Resume Rewrite', coverletter: 'Cover Letter', bundle: 'Bundle', linkedin: 'LinkedIn Opt.', pro: 'Pro Subscription' };
-                    const COLORS = { rewrite: '#c8f04a', coverletter: '#4af0c8', bundle: '#a855f7', linkedin: '#0a84ff', pro: '#c8f04a' };
+                    const COLORS = { rewrite: '#d4a017', coverletter: '#c4855a', bundle: '#9b6b1e', linkedin: '#4a90d2', pro: '#d4a017' };
                     return (
                       <TRow key={i} cols="2fr 1fr 90px">
                         <span className={s.cellTime}>{fmtTime(a.ts)}</span>
                         <span style={{ color: COLORS[a.type] || 'var(--text)', fontWeight: 500 }}>
                           {LABELS[a.type] || a.type}
                         </span>
-                        <span style={{ color: '#c8f04a', fontWeight: 600 }}>${(a.cents / 100).toFixed(2)}</span>
+                        <span style={{ color: '#d4a017', fontWeight: 600 }}>${(a.cents / 100).toFixed(2)}</span>
                       </TRow>
                     );
                   })}

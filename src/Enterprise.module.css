@@ -176,7 +176,7 @@
 .clearBtn {
   background: none;
   border: none;
-  color: #f04a4a;
+  color: #c0392b;
   font-size: 11px;
   cursor: pointer;
   padding: 0;
@@ -205,9 +205,9 @@
   padding: 0 2px;
   transition: color 0.15s;
 }
-.removeFile:hover { color: #f04a4a; }
+.removeFile:hover { color: #c0392b; }
 
-.errorMsg { color: #f04a4a; font-size: 13px; margin: 8px 0; }
+.errorMsg { color: #c0392b; font-size: 13px; margin: 8px 0; }
 .hintMsg { color: var(--text-dim); font-size: 12px; margin-top: 8px; text-align: center; }
 
 /* ── Screen Button ───────────────────────────────────────────────────────── */
@@ -217,7 +217,7 @@
   font-size: 15px;
   font-weight: 600;
   background: var(--accent);
-  color: #0e0e0e;
+  color: #0d0905;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -312,7 +312,7 @@
   font-size: 13px;
   font-weight: 600;
   background: var(--accent);
-  color: #0e0e0e;
+  color: #0d0905;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -478,8 +478,8 @@
   position: absolute;
   top: -1px;
   right: 20px;
-  background: #c8f04a;
-  color: #0e0e0e;
+  background: #d4a017;
+  color: #0d0905;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -558,6 +558,12 @@
 
 @media (max-width: 600px) {
   .pricingCards { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .body { padding: 12px; }
+  .pricingCards { gap: 12px; }
+  .tableHead, .tableRow { grid-template-columns: 32px 1fr 60px 80px; }
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */

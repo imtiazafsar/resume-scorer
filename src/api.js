@@ -1,8 +1,9 @@
-export async function analyzeResume(resumeText, jobDescription = '') {
+export async function analyzeResume(resumeText, jobDescription = '', filename = '') {
+  const proToken = localStorage.getItem('resume_pro_token') || undefined;
   const response = await fetch('/api/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ resumeText, jobDescription }),
+    body: JSON.stringify({ resumeText, jobDescription, proToken, filename }),
   });
 
   const data = await response.json();

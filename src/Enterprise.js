@@ -5,17 +5,17 @@ import s from './Enterprise.module.css';
 const MAX_FILES = 10;
 
 function scoreColor(score) {
-  if (score >= 80) return '#c8f04a';
-  if (score >= 60) return '#4af0c8';
-  if (score >= 40) return '#f0c84a';
-  return '#f04a4a';
+  if (score >= 80) return '#d4a017';
+  if (score >= 60) return '#c4855a';
+  if (score >= 40) return '#e09030';
+  return '#c0392b';
 }
 
 const GRADE_STYLE = {
-  'Excellent':  { bg: '#1a2e05', color: '#c8f04a' },
-  'Good':       { bg: '#042e2e', color: '#4af0c8' },
-  'Average':    { bg: '#2e2005', color: '#f0c84a' },
-  'Needs Work': { bg: '#2e0505', color: '#f04a4a' },
+  'Excellent':  { bg: '#1a2e05', color: '#d4a017' },
+  'Good':       { bg: '#042e2e', color: '#c4855a' },
+  'Average':    { bg: '#2e2005', color: '#e09030' },
+  'Needs Work': { bg: '#2e0505', color: '#c0392b' },
   'Error':      { bg: '#1a1a1a', color: '#666' },
 };
 
@@ -186,8 +186,8 @@ export default function Enterprise() {
               {/* Monthly plan */}
               <div className={s.pricingCard} style={{ borderColor: '#c8f04a88', background: 'linear-gradient(135deg, #1a2e05 0%, #0d1a0d 100%)' }}>
                 <span className={s.pricingPopular}>Most Popular</span>
-                <span className={s.pricingPlan} style={{ color: '#c8f04a' }}>Monthly</span>
-                <div className={s.pricingAmount}><span className={s.pricingAmt} style={{ color: '#c8f04a' }}>$99</span><span className={s.pricingPer}>/month</span></div>
+                <span className={s.pricingPlan} style={{ color: '#d4a017' }}>Monthly</span>
+                <div className={s.pricingAmount}><span className={s.pricingAmt} style={{ color: '#d4a017' }}>$99</span><span className={s.pricingPer}>/month</span></div>
                 <p className={s.pricingDesc}>Unlimited batches. For teams actively hiring across multiple roles.</p>
                 <ul className={s.pricingFeats}>
                   <li>✓ Unlimited screening runs</li>
@@ -197,7 +197,7 @@ export default function Enterprise() {
                 </ul>
                 <button
                   className={s.pricingBtn}
-                  style={{ background: '#c8f04a', color: '#0e0e0e' }}
+                  style={{ background: '#d4a017', color: '#0e0e0e' }}
                   onClick={() => openGumroad('monthly')}
                 >
                   Start monthly plan →
@@ -314,11 +314,11 @@ export default function Enterprise() {
               <span className={s.statLbl}>Avg Score</span>
             </div>
             <div className={s.statItem}>
-              <span className={s.statNum} style={{ color: '#c8f04a' }}>{excellent}</span>
+              <span className={s.statNum} style={{ color: '#d4a017' }}>{excellent}</span>
               <span className={s.statLbl}>Excellent</span>
             </div>
             <div className={s.statItem}>
-              <span className={s.statNum} style={{ color: '#4af0c8' }}>{shortlist}</span>
+              <span className={s.statNum} style={{ color: '#c4855a' }}>{shortlist}</span>
               <span className={s.statLbl}>Recommended (70+)</span>
             </div>
             <div className={s.statActions}>

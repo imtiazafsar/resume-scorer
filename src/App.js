@@ -13,19 +13,19 @@ const LOADING_STEPS = [
 ];
 
 const DIMENSION_COLORS = {
-  'Contact & Links': '#c8f04a',
-  'Work Experience': '#4af0c8',
-  'Skills':          '#f0c84a',
-  'Education':       '#c84af0',
-  'Formatting':      '#4ac8f0',
-  'Keywords & ATS':  '#f04a4a',
+  'Contact & Links': '#d4a017',
+  'Work Experience': '#c4855a',
+  'Skills':          '#e09030',
+  'Education':       '#7b9fcd',
+  'Formatting':      '#c8b090',
+  'Keywords & ATS':  '#c0392b',
 };
 
 const GRADE_STYLES = {
-  'Excellent':  { bg: '#1a2e05', text: '#c8f04a' },
-  'Good':       { bg: '#042e2e', text: '#4af0c8' },
-  'Average':    { bg: '#2e2005', text: '#f0c84a' },
-  'Needs Work': { bg: '#2e0505', text: '#f04a4a' },
+  'Excellent':  { bg: '#2a1d05', text: '#d4a017' },
+  'Good':       { bg: '#0d1a2e', text: '#7b9fcd' },
+  'Average':    { bg: '#2d1a05', text: '#e09030' },
+  'Needs Work': { bg: '#2a0d0a', text: '#c0392b' },
 };
 
 const HISTORY_KEY = 'resume_scorer_history';
@@ -43,7 +43,7 @@ function saveToHistory(entry) {
 }
 
 // ── Confetti ─────────────────────────────────────────────────────────────────
-const CONFETTI_COLORS = ['#c8f04a', '#4af0c8', '#f0c84a', '#c84af0', '#4ac8f0'];
+const CONFETTI_COLORS = ['#d4a017', '#c4855a', '#e09030', '#7b9fcd', '#c8b090'];
 
 function useConfetti(trigger) {
   const [pieces, setPieces] = useState([]);
@@ -103,7 +103,7 @@ function AnimatedNumber({ target }) {
 function ScoreRing({ score }) {
   const r = 54, circ = 2 * Math.PI * r;
   const dash = (score / 100) * circ;
-  const color = score >= 80 ? '#c8f04a' : score >= 60 ? '#4af0c8' : score >= 40 ? '#f0c84a' : '#f04a4a';
+  const color = score >= 80 ? '#d4a017' : score >= 60 ? '#c4855a' : score >= 40 ? '#e09030' : '#c0392b';
   return (
     <div className={styles.ringWrap}>
       <svg width="140" height="140" viewBox="0 0 140 140" style={{ transform: 'rotate(-90deg)' }}>
@@ -173,20 +173,20 @@ function KeywordCloud({ keywords }) {
       <h3 className={styles.sectionTitle}>ATS Keywords</h3>
       {matched.length > 0 && (
         <div className={styles.kwGroup}>
-          <span className={styles.kwGroupLabel} style={{ color: '#c8f04a' }}>✓ Matched</span>
+          <span className={styles.kwGroupLabel} style={{ color: '#d4a017' }}>✓ Matched</span>
           <div className={styles.kwTags}>
             {matched.map((k, i) => (
-              <span key={i} className={styles.kwTag} style={{ background: '#1a2e0588', borderColor: '#c8f04a55', color: '#c8f04a' }}>{k}</span>
+              <span key={i} className={styles.kwTag} style={{ background: '#2a1d0588', borderColor: '#d4a01755', color: '#d4a017' }}>{k}</span>
             ))}
           </div>
         </div>
       )}
       {missing.length > 0 && (
         <div className={styles.kwGroup}>
-          <span className={styles.kwGroupLabel} style={{ color: '#f04a4a' }}>✗ Missing</span>
+          <span className={styles.kwGroupLabel} style={{ color: '#c0392b' }}>✗ Missing</span>
           <div className={styles.kwTags}>
             {missing.map((k, i) => (
-              <span key={i} className={styles.kwTag} style={{ background: '#2e050588', borderColor: '#f04a4a55', color: '#f04a4a' }}>{k}</span>
+              <span key={i} className={styles.kwTag} style={{ background: '#2a0d0a88', borderColor: '#c0392b55', color: '#c0392b' }}>{k}</span>
             ))}
           </div>
         </div>
@@ -197,7 +197,7 @@ function KeywordCloud({ keywords }) {
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
-  const [view, setView] = useState('upload'); // upload | loading | results | rewriting | product_result | rate_limited
+  const [view, setView] = useState('upload'); // upload | loading | results | rewriting | product_result | rate_limited | pro_success
   const [file, setFile] = useState(null);
   const [mode, setMode] = useState('general');
   const [jobDesc, setJobDesc] = useState('');
@@ -209,13 +209,8 @@ export default function App() {
   const [history, setHistory] = useState(loadHistory);
   const [showHistory, setShowHistory] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [rewriteLoading, setRewriteLoading] = useState(false);
-  const [clLoading, setClLoading] = useState(false);
-  const [bundleLoading, setBundleLoading] = useState(false);
-  const [linkedinLoading, setLinkedinLoading] = useState(false);
   const [productResult, setProductResult] = useState(null); // { content, type } | { type:'bundle', bundleRewrite, bundleCoverLetter }
   const [productCopied, setProductCopied] = useState(false);
-  const [awaitingPayment, setAwaitingPayment] = useState(false);
   const fileInputRef = useRef();
   const stepInterval = useRef();
 
@@ -227,55 +222,84 @@ export default function App() {
     coverletter: 'https://imtiazafsar.gumroad.com/l/cover-letter',
     bundle:      'https://imtiazafsar.gumroad.com/l/resume-bundle',
     linkedin:    'https://imtiazafsar.gumroad.com/l/linkedin-optimizer',
+    pro:         'https://imtiazafsar.gumroad.com/l/resume-scorer-pro',
   };
 
-  // Deliver product after confirmed payment
+  // Generate document after confirmed payment (shared by postMessage + fallback button)
   function deliverProduct(saleId) {
     const pendingType   = sessionStorage.getItem('gumroad_pending_type');
     const pendingResume = sessionStorage.getItem('gumroad_pending_resume');
     const pendingJD     = sessionStorage.getItem('gumroad_pending_jd') || '';
+
     if (!pendingType) return;
     sessionStorage.removeItem('gumroad_pending_type');
     sessionStorage.removeItem('gumroad_pending_resume');
     sessionStorage.removeItem('gumroad_pending_jd');
-    setAwaitingPayment(false);
+
     if (pendingType === 'pro') {
-      const sid = saleId || Date.now().toString();
-      fetch('/api/activate-pro', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ saleId: sid }) }).catch(() => {});
-      localStorage.setItem('resume_pro_token', sid);
+      fetch('/api/activate-pro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ saleId }),
+      }).catch(() => {});
+      localStorage.setItem('resume_pro_token', saleId);
       setView('pro_success');
       return;
     }
+
     if (!pendingResume) return;
     setView('rewriting');
     fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resumeText: pendingResume, jobDescription: pendingJD, type: pendingType, saleId: saleId || Date.now().toString() }),
-    }).then(r => r.json()).then(d => {
-      if (d.error) { setError(d.error); setView('results'); }
-      else { setProductResult(d); setView('product_result'); }
-    }).catch(() => { setError('Generation failed. Please contact support.'); setView('results'); });
+      body: JSON.stringify({ resumeText: pendingResume, jobDescription: pendingJD, type: pendingType, saleId }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.error) { setError(d.error); setView('results'); }
+        else { setProductResult(d); setView('product_result'); }
+      })
+      .catch(() => { setError('Generation failed. Please contact support.'); setView('results'); });
   }
 
-  // Listen for Gumroad postMessage (multiple formats) + set awaitingPayment
+  // Listen for Gumroad purchase success postMessage (multiple formats)
   useEffect(() => {
     function onMessage(e) {
       if (!e.data) return;
-      let isSale = false; let saleId = null;
+      let isSale = false;
+      let saleId = Date.now().toString();
+
+      // Format 1: plain string
       if (e.data === 'gumroad:purchase') { isSale = true; }
+
+      // Format 2: JSON string
       if (!isSale && typeof e.data === 'string') {
-        try { const d = JSON.parse(e.data); if (d.post_message_name === 'sale' || d.event === 'purchase') { isSale = true; saleId = d.sale?.id || d.id; } } catch {}
+        try {
+          const d = JSON.parse(e.data);
+          if (d.post_message_name === 'sale' || d.event === 'purchase') {
+            isSale = true;
+            saleId = d.sale?.id || d.id || saleId;
+          }
+        } catch {}
       }
+
+      // Format 3: object
       if (!isSale && typeof e.data === 'object') {
-        if (e.data.post_message_name === 'sale' || e.data.event === 'purchase') { isSale = true; saleId = e.data.sale?.id || e.data.id; }
+        if (e.data.post_message_name === 'sale' || e.data.event === 'purchase') {
+          isSale = true;
+          saleId = e.data.sale?.id || e.data.id || saleId;
+        }
       }
+
       if (!isSale) return;
       deliverProduct(saleId);
     }
+
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   function handleFile(f) {
     if (!f) return;
@@ -299,7 +323,7 @@ export default function App() {
       const text = await extractText(file);
       if (!text || text.trim().length < 30) throw new Error('Could not extract text. Try a different format or a text-based PDF.');
       setResumeText(text);
-      const data = await analyzeResume(text, mode === 'job' ? jobDesc : '');
+      const data = await analyzeResume(text, mode === 'job' ? jobDesc : '', file?.name);
       const entry = { id: Date.now(), filename: file.name, date: new Date().toLocaleDateString(), score: data.score, grade: data.grade, result: data };
       saveToHistory(entry);
       setHistory(loadHistory());
@@ -344,6 +368,18 @@ export default function App() {
     }
   }
 
+  function startProCheckout() {
+    sessionStorage.setItem('gumroad_pending_type', 'pro');
+    const url = GUMROAD_URLS.pro;
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url + '?wanted=true';
+    a.setAttribute('data-gumroad-overlay-checkout', 'true');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
   function startCheckout(type) {
     if (!resumeText) return;
     if ((type === 'coverletter' || type === 'bundle') && !jobDesc.trim()) {
@@ -357,7 +393,6 @@ export default function App() {
     sessionStorage.setItem('gumroad_pending_jd', jobDesc || '');
 
     // Open Gumroad overlay
-    setAwaitingPayment(true);
     const url = GUMROAD_URLS[type];
     if (!url) return;
     const a = document.createElement('a');
@@ -382,7 +417,7 @@ export default function App() {
           <div className={styles.historyPanel}>
             <p className={styles.historyHeading}>Previous Analyses</p>
             {history.map(h => {
-              const color = h.score >= 80 ? '#c8f04a' : h.score >= 60 ? '#4af0c8' : h.score >= 40 ? '#f0c84a' : '#f04a4a';
+              const color = h.score >= 80 ? '#d4a017' : h.score >= 60 ? '#c4855a' : h.score >= 40 ? '#e09030' : '#c0392b';
               return (
                 <div key={h.id} className={styles.historyItem}
                   onClick={() => { setResult(h.result); setView('results'); setShowHistory(false); }}>
@@ -475,7 +510,7 @@ export default function App() {
           <div className={styles.limitIcon}>🚀</div>
           <h2 className={styles.limitTitle}>You're a power user</h2>
           <p className={styles.limitSub}>
-            You've used all <strong>5 free scans</strong> for today. Upgrade to <strong style={{ color: '#c8f04a' }}>Pro</strong> for unlimited access — no waiting, no resets.
+            You've used all <strong>5 free scans</strong> for today. Upgrade to <strong style={{ color: '#d4a017' }}>Pro</strong> for unlimited access — no waiting, no resets.
           </p>
 
           <div className={styles.proCard}>
@@ -490,13 +525,13 @@ export default function App() {
               <li><span className={styles.proCheck}>✓</span> Priority AI analysis (2× faster)</li>
               <li><span className={styles.proCheck}>✓</span> 20% off resume rewrites &amp; cover letters</li>
             </ul>
-            <a
-              href="mailto:imtiazafsar456@gmail.com?subject=Resume%20Scorer%20Pro%20Subscription&body=Hi%2C%20I%27d%20like%20to%20upgrade%20to%20Pro."
+            <button
               className={styles.proUpgradeBtn}
+              onClick={startProCheckout}
             >
               Upgrade to Pro →
-            </a>
-            <p className={styles.proGuarantee}>7-day free trial · Cancel anytime · No credit card now</p>
+            </button>
+            <p className={styles.proGuarantee}>Instant access · Cancel anytime · 7-day money-back guarantee</p>
           </div>
 
           <button
@@ -506,6 +541,31 @@ export default function App() {
           >
             ← Wait until midnight instead
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Pro success view ────────────────────────────────────────────────────
+  if (view === 'pro_success') {
+    return (
+      <div className={styles.page}>
+        <div className={styles.limitWrap}>
+          <div className={styles.limitIcon}>🎉</div>
+          <h2 className={styles.limitTitle}>You're now Pro!</h2>
+          <p className={styles.limitSub}>
+            Your subscription is active. You now have <strong style={{ color: '#d4a017' }}>unlimited</strong> resume scans — no daily limits, ever.
+          </p>
+          <button
+            className={styles.analyzeBtn}
+            style={{ marginTop: 8 }}
+            onClick={() => { setView('upload'); setFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+          >
+            Start scanning →
+          </button>
+          <p className={styles.proGuarantee} style={{ marginTop: 12 }}>
+            If you ever have issues, email <a href="mailto:imtiazafsar456@gmail.com" style={{ color: '#d4a017' }}>imtiazafsar456@gmail.com</a>
+          </p>
         </div>
       </div>
     );
@@ -576,7 +636,7 @@ export default function App() {
               </div>
               <div className={styles.bundleSection} style={{ marginTop: 14 }}>
                 <div className={styles.bundleSectionHeader}>
-                  <span className={styles.bundleSectionTag} style={{ color: '#4af0c8', background: '#4af0c818', borderColor: '#4af0c844' }}>Cover Letter</span>
+                  <span className={styles.bundleSectionTag} style={{ color: '#c4855a', background: '#c4855a18', borderColor: '#c4855a44' }}>Cover Letter</span>
                 </div>
                 <div className={styles.rewriteBox}>
                   <pre className={styles.rewriteText}>{productResult.bundleCoverLetter}</pre>
@@ -607,17 +667,17 @@ export default function App() {
 
               {/* Cross-sell: rewrite → cover letter, CL → rewrite */}
               {isRewrite && jobDesc && (
-                <div className={styles.premiumCard} style={{ marginTop: 16, background: 'linear-gradient(135deg, #000d2e 0%, #001a33 100%)', borderColor: '#4af0c844' }}>
+                <div className={styles.premiumCard} style={{ marginTop: 16, background: 'linear-gradient(135deg, #160e05 0%, #1a1207 100%)', borderColor: '#c4855a44' }}>
                   <div className={styles.premiumLeft}>
-                    <span className={styles.premiumBadge} style={{ color: '#4af0c8', background: '#4af0c818', borderColor: '#4af0c844' }}>Complete the package</span>
+                    <span className={styles.premiumBadge} style={{ color: '#c4855a', background: '#c4855a18', borderColor: '#c4855a44' }}>Complete the package</span>
                     <h3 className={styles.premiumTitle}>Add a tailored cover letter</h3>
                     <p className={styles.premiumSub}>Pair your rewritten resume with a role-specific cover letter and send a complete, standout application.</p>
                   </div>
                   <div className={styles.premiumRight}>
-                    <span className={styles.premiumPrice} style={{ color: '#4af0c8' }}>$3.99</span>
-                    <button className={styles.premiumBtn} style={{ background: '#4af0c8' }}
-                      disabled={clLoading} onClick={() => startCheckout('coverletter')}>
-                      {clLoading ? 'Preparing…' : 'Add Cover Letter →'}
+                    <span className={styles.premiumPrice} style={{ color: '#c4855a' }}>$3.99</span>
+                    <button className={styles.premiumBtn} style={{ background: '#c4855a' }}
+                      onClick={() => startCheckout('coverletter')}>
+                      'Add Cover Letter →'
                     </button>
                   </div>
                 </div>
@@ -632,8 +692,8 @@ export default function App() {
                   <div className={styles.premiumRight}>
                     <span className={styles.premiumPrice}>$4.99</span>
                     <button className={styles.premiumBtn}
-                      disabled={rewriteLoading} onClick={() => startCheckout('rewrite')}>
-                      {rewriteLoading ? 'Preparing…' : 'Rewrite Resume →'}
+                      onClick={() => startCheckout('rewrite')}>
+                      'Rewrite Resume →'
                     </button>
                   </div>
                 </div>
@@ -665,29 +725,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Premium: LinkedIn Optimizer */}
-        <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #001829 0%, #001020 100%)', borderColor: '#0a66c244' }}>
-          <div className={styles.premiumLeft}>
-            <span className={styles.premiumBadge} style={{ color: '#0a84ff', background: '#0a84ff18', borderColor: '#0a84ff44' }}>New</span>
-            <h3 className={styles.premiumTitle}>LinkedIn Profile Optimizer</h3>
-            <ul className={styles.premiumBullets} style={{ color: 'var(--text-dim)' }}>
-              <li>✓ Headline &amp; About rewritten for recruiter search</li>
-              <li>✓ Skills section tuned for your target role</li>
-              <li>✓ Copy-paste ready in 30 seconds</li>
-            </ul>
-            <p className={styles.premiumTrust}>⚡ 71% more recruiter views · 30-day money-back guarantee</p>
-          </div>
-          <div className={styles.premiumRight}>
-            <span className={styles.premiumPrice} style={{ color: '#0a84ff' }}>$2.99</span>
-            <button className={styles.premiumBtn} style={{ background: '#0a84ff' }}
-              disabled={linkedinLoading || !resumeText}
-              onClick={() => startCheckout('linkedin')}>
-              {linkedinLoading ? 'Preparing…' : 'Optimise LinkedIn →'}
-            </button>
-          </div>
-        </div>
-
-
         {/* Premium: Bundle (job match mode only — shown first for maximum impact) */}
         {result.jobMatch != null && (
           <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #1a0d2e 0%, #0d1a1a 100%)', borderColor: '#a855f744', position: 'relative', overflow: 'hidden' }}>
@@ -707,9 +744,9 @@ export default function App() {
                 <span className={styles.premiumPrice} style={{ color: '#a855f7' }}>$7.99</span>
               </div>
               <button className={styles.premiumBtn} style={{ background: '#a855f7' }}
-                disabled={(rewriteLoading || clLoading) || !resumeText}
+                disabled={!resumeText}
                 onClick={() => startCheckout('bundle')}>
-                {(rewriteLoading || clLoading) ? 'Preparing…' : 'Get Bundle →'}
+                'Get Bundle →'
               </button>
             </div>
           </div>
@@ -731,17 +768,17 @@ export default function App() {
           </div>
           <div className={styles.premiumRight}>
             <span className={styles.premiumPrice}>$4.99</span>
-            <button className={styles.premiumBtn} disabled={rewriteLoading || !resumeText} onClick={() => startCheckout('rewrite')}>
-              {rewriteLoading ? 'Preparing…' : 'Rewrite Resume →'}
+            <button className={styles.premiumBtn} disabled={!resumeText} onClick={() => startCheckout('rewrite')}>
+              'Rewrite Resume →'
             </button>
           </div>
         </div>
 
         {/* Premium: Cover Letter (job match mode only) */}
         {result.jobMatch != null && (
-          <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #000d2e 0%, #001a33 100%)', borderColor: '#4af0c844' }}>
+          <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #160e05 0%, #1a1207 100%)', borderColor: '#c4855a44' }}>
             <div className={styles.premiumLeft}>
-              <span className={styles.premiumBadge} style={{ color: '#4af0c8', background: '#4af0c818', borderColor: '#4af0c844' }}>Premium</span>
+              <span className={styles.premiumBadge} style={{ color: '#c4855a', background: '#c4855a18', borderColor: '#c4855a44' }}>Premium</span>
               <h3 className={styles.premiumTitle}>Generate a tailored cover letter</h3>
               <ul className={styles.premiumBullets} style={{ color: 'var(--text-dim)' }}>
                 <li>✓ Written specifically for this role</li>
@@ -751,9 +788,9 @@ export default function App() {
               <p className={styles.premiumTrust}>⚡ Ready in ~30 seconds · 30-day money-back guarantee</p>
             </div>
             <div className={styles.premiumRight}>
-              <span className={styles.premiumPrice} style={{ color: '#4af0c8' }}>$3.99</span>
-              <button className={styles.premiumBtn} style={{ background: '#4af0c8' }} disabled={clLoading || !resumeText} onClick={() => startCheckout('coverletter')}>
-                {clLoading ? 'Preparing…' : 'Write Cover Letter →'}
+              <span className={styles.premiumPrice} style={{ color: '#c4855a' }}>$3.99</span>
+              <button className={styles.premiumBtn} style={{ background: '#c4855a' }} disabled={!resumeText} onClick={() => startCheckout('coverletter')}>
+                'Write Cover Letter →'
               </button>
             </div>
           </div>
@@ -764,7 +801,7 @@ export default function App() {
           <div className={styles.jobMatchCard}>
             <div className={styles.jobMatchTop}>
               <span className={styles.jobMatchLabel}>Job Match</span>
-              <span className={styles.jobMatchPct} style={{ color: result.jobMatch >= 70 ? '#c8f04a' : result.jobMatch >= 50 ? '#f0c84a' : '#f04a4a' }}>
+              <span className={styles.jobMatchPct} style={{ color: result.jobMatch >= 70 ? '#d4a017' : result.jobMatch >= 50 ? '#e09030' : '#c0392b' }}>
                 <AnimatedNumber target={result.jobMatch} />%
               </span>
             </div>
@@ -775,6 +812,28 @@ export default function App() {
             )}
           </div>
         )}
+
+        {/* Premium: LinkedIn Optimizer */}
+        <div className={styles.premiumCard} style={{ background: 'linear-gradient(135deg, #001829 0%, #001020 100%)', borderColor: '#0a66c244' }}>
+          <div className={styles.premiumLeft}>
+            <span className={styles.premiumBadge} style={{ color: '#0a84ff', background: '#0a84ff18', borderColor: '#0a84ff44' }}>New</span>
+            <h3 className={styles.premiumTitle}>LinkedIn Profile Optimizer</h3>
+            <ul className={styles.premiumBullets} style={{ color: 'var(--text-dim)' }}>
+              <li>✓ Headline &amp; About rewritten for recruiter search</li>
+              <li>✓ Skills section tuned for your target role</li>
+              <li>✓ Copy-paste ready in 30 seconds</li>
+            </ul>
+            <p className={styles.premiumTrust}>⚡ 71% more recruiter views · 30-day money-back guarantee</p>
+          </div>
+          <div className={styles.premiumRight}>
+            <span className={styles.premiumPrice} style={{ color: '#0a84ff' }}>$2.99</span>
+            <button className={styles.premiumBtn} style={{ background: '#0a84ff' }}
+              disabled={!resumeText}
+              onClick={() => startCheckout('linkedin')}>
+              'Optimise LinkedIn →'
+            </button>
+          </div>
+        </div>
 
         {/* ATS Keywords */}
         <KeywordCloud keywords={result.keywords} />
@@ -795,7 +854,7 @@ export default function App() {
           <h3 className={styles.sectionTitle}>Strengths</h3>
           <ul className={styles.list}>
             {result.strengths.map((s, i) => (
-              <li key={i} className={styles.listItem}><span className={styles.listIcon} style={{ color: '#c8f04a' }}>✓</span>{s}</li>
+              <li key={i} className={styles.listItem}><span className={styles.listIcon} style={{ color: '#d4a017' }}>✓</span>{s}</li>
             ))}
           </ul>
         </section>
@@ -805,20 +864,10 @@ export default function App() {
           <h3 className={styles.sectionTitle}>Recommendations</h3>
           <ul className={styles.list}>
             {result.recommendations.map((r, i) => (
-              <li key={i} className={styles.listItem}><span className={styles.listIcon} style={{ color: '#f0c84a' }}>→</span>{r}</li>
+              <li key={i} className={styles.listItem}><span className={styles.listIcon} style={{ color: '#e09030' }}>→</span>{r}</li>
             ))}
           </ul>
         </section>
-
-        {/* Fallback delivery button — shown after Gumroad overlay opened */}
-        {awaitingPayment && (
-          <div className={styles.paymentFallback}>
-            <p className={styles.paymentFallbackMsg}>✅ Payment confirmed? Click below to get your document.</p>
-            <button className={styles.analyzeBtn} style={{ marginTop: 0 }} onClick={() => deliverProduct(null)}>
-              Generate My Document →
-            </button>
-          </div>
-        )}
 
         {/* Inline error for checkout failures */}
         {error && <p className={styles.errorMsg} style={{ textAlign: 'center', maxWidth: '100%' }}>{error}</p>}

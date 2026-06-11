@@ -72,28 +72,38 @@ function gradeKey(grade) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { resumeText, jobDescription } = req.body;
+  const { resumeText, jobDescription, proToken, filename } = req.body;
   if (!resumeText || resumeText.trim().length < 30)
     return res.status(400).json({ error: 'Resume text too short or missing.' });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server is missing API key configuration.' });
 
-  // Rate limit: 5 free scans per IP per day
+  // Check Pro token — if valid, skip IP rate limit
+  let isPro = false;
+  if (proToken && typeof proToken === 'string' && proToken.length >= 4) {
+    const proResult = await pipeline([['GET', `pro:sale:${proToken}`]]).catch(() => null);
+    isPro = proResult?.[0]?.result === '1';
+  }
+
+  // Rate limit: 5 free scans per IP per day (skipped for Pro users)
   const today = new Date().toISOString().slice(0, 10);
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-  const rlKey = `ratelimit:${ip}:${today}`;
-  const rlResult = await pipeline([
-    ['INCR', rlKey],
-    ['EXPIRE', rlKey, 86400],
-  ]).catch(() => null);
-  const scanCount = rlResult?.[0]?.result || 1;
-  if (scanCount > 5) {
-    return res.status(429).json({
-      error: `You've used all 5 free scans for today. Your limit resets at midnight — come back tomorrow!`,
-      rateLimited: true,
-      remaining: 0,
-    });
+
+  if (!isPro) {
+    const rlKey = `ratelimit:${ip}:${today}`;
+    const rlResult = await pipeline([
+      ['INCR', rlKey],
+      ['EXPIRE', rlKey, 86400],
+    ]).catch(() => null);
+    const scanCount = rlResult?.[0]?.result || 1;
+    if (scanCount > 5) {
+      return res.status(429).json({
+        error: `You've used all 5 free scans for today. Your limit resets at midnight — come back tomorrow!`,
+        rateLimited: true,
+        remaining: 0,
+      });
+    }
   }
 
   const isJobMode = jobDescription && jobDescription.trim().length > 20;
@@ -146,6 +156,7 @@ export default async function handler(req, res) {
   const activity = JSON.stringify({
     ts: new Date().toISOString(), score: parsed.score, grade: parsed.grade,
     mode: isJobMode ? 'job' : 'general', tokens: inputTokens + outputTokens,
+    filename: (typeof filename === 'string' && filename) ? filename : 'unknown',
   });
 
   await pipeline([

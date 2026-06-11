@@ -20,7 +20,7 @@
   font-size: clamp(48px, 8vw, 80px);
   font-weight: 400;
   line-height: 1.05;
-  letter-spacing: -1px;
+  letter-spacing: 2px;
   color: var(--text);
   margin-bottom: 16px;
 }
@@ -130,10 +130,10 @@
 .modeBtnOn {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0e0e0e;
+  color: #0d0905;
 }
 
-.modeBtnOn:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #0e0e0e; }
+.modeBtnOn:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #0d0905; }
 
 /* ── Job Description Textarea ────────────────────────────────────────────── */
 .jobTextarea {
@@ -176,7 +176,7 @@
 
 .dropZone:hover, .dropActive {
   border-color: var(--accent);
-  background: #111;
+  background: #161009;
 }
 
 .uploadIcon {
@@ -223,10 +223,10 @@
   line-height: 1;
   transition: color 0.15s;
 }
-.removeBtn:hover { color: #f04a4a; }
+.removeBtn:hover { color: #c0392b; }
 
 /* ── Messages ────────────────────────────────────────────────────────────── */
-.errorMsg { color: #f04a4a; font-size: 13px; margin-top: 12px; max-width: 560px; text-align: center; }
+.errorMsg { color: #c0392b; font-size: 13px; margin-top: 12px; max-width: 560px; text-align: center; }
 .hintMsg  { color: var(--text-dim); font-size: 13px; margin-top: 10px; text-align: center; }
 
 /* ── Analyze button ──────────────────────────────────────────────────────── */
@@ -236,7 +236,7 @@
   font-size: 15px;
   font-weight: 500;
   background: var(--accent);
-  color: #0e0e0e;
+  color: #0d0905;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -438,7 +438,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #c8f04a;
+  background: #d4a017;
   animation: pulse 2s ease infinite;
 }
 
@@ -459,7 +459,7 @@
 .proCard {
   width: 100%;
   background: linear-gradient(135deg, #1a2e05 0%, #0d1a0d 100%);
-  border: 0.5px solid #c8f04a55;
+  border: 0.5px solid #d4a01755;
   border-radius: var(--radius);
   padding: 24px 28px;
   text-align: left;
@@ -477,15 +477,15 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #c8f04a;
-  background: #c8f04a18;
-  border: 0.5px solid #c8f04a44;
+  color: #d4a017;
+  background: #d4a01718;
+  border: 0.5px solid #d4a01744;
   border-radius: 20px;
   padding: 3px 10px;
 }
 
 .proPrice { display: flex; align-items: baseline; gap: 2px; }
-.proPriceAmt { font-family: var(--font-display); font-size: 28px; color: #c8f04a; }
+.proPriceAmt { font-family: var(--font-display); font-size: 28px; color: #d4a017; }
 .proPricePer { font-size: 13px; color: var(--text-muted); }
 
 .proFeatures {
@@ -498,14 +498,14 @@
   color: var(--text-muted);
 }
 
-.proCheck { color: #c8f04a; font-weight: 700; margin-right: 8px; }
+.proCheck { color: #d4a017; font-weight: 700; margin-right: 8px; }
 
 .proUpgradeBtn {
   display: block;
   width: 100%;
   padding: 13px;
-  background: #c8f04a;
-  color: #0e0e0e;
+  background: #d4a017;
+  color: #0d0905;
   font-size: 15px;
   font-weight: 600;
   border-radius: var(--radius-sm);
@@ -551,7 +551,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  background: #a855f7;
+  background: #9b6b1e;
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -619,7 +619,7 @@
   min-width: 20px;
   border-radius: 50%;
   background: var(--accent);
-  color: #0e0e0e;
+  color: #0d0905;
   font-size: 11px;
   font-weight: 700;
   margin-top: 2px;
@@ -671,7 +671,7 @@
   justify-content: space-between;
   gap: 20px;
   background: linear-gradient(135deg, #1a1a00 0%, #0d1a0d 100%);
-  border: 0.5px solid #c8f04a44;
+  border: 0.5px solid #d4a01744;
   border-radius: var(--radius);
   padding: 24px 28px;
   margin-bottom: 14px;
@@ -685,9 +685,9 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #c8f04a;
-  background: #c8f04a18;
-  border: 0.5px solid #c8f04a44;
+  color: #d4a017;
+  background: #d4a01718;
+  border: 0.5px solid #d4a01744;
   border-radius: 20px;
   padding: 3px 10px;
   margin-bottom: 10px;
@@ -718,7 +718,7 @@
 .premiumPrice {
   font-family: var(--font-display);
   font-size: 28px;
-  color: #c8f04a;
+  color: #d4a017;
   line-height: 1;
 }
 
@@ -726,8 +726,8 @@
   padding: 11px 22px;
   font-size: 14px;
   font-weight: 600;
-  background: #c8f04a;
-  color: #0e0e0e;
+  background: #d4a017;
+  color: #0d0905;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -759,9 +759,9 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #c8f04a;
-  background: #c8f04a18;
-  border: 0.5px solid #c8f04a44;
+  color: #d4a017;
+  background: #d4a01718;
+  border: 0.5px solid #d4a01744;
   border-radius: 20px;
   padding: 3px 10px;
 }
@@ -769,7 +769,7 @@
 /* ── Rewrite Result ───────────────────────────────────────────────────────── */
 .rewriteHero {
   background: linear-gradient(135deg, #1a1a00 0%, #0d1a0d 100%);
-  border: 0.5px solid #c8f04a44;
+  border: 0.5px solid #d4a01744;
   border-radius: var(--radius);
   padding: 24px 28px;
   margin-bottom: 14px;
@@ -781,9 +781,9 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #c8f04a;
-  background: #c8f04a18;
-  border: 0.5px solid #c8f04a44;
+  color: #d4a017;
+  background: #d4a01718;
+  border: 0.5px solid #d4a01744;
   border-radius: 20px;
   padding: 3px 10px;
   margin-bottom: 12px;
@@ -831,7 +831,7 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.downloadBtn:hover { background: var(--accent); color: #0e0e0e; }
+.downloadBtn:hover { background: var(--accent); color: #0d0905; }
 
 /* ── Action Row ──────────────────────────────────────────────────────────── */
 .actionRow {
@@ -852,7 +852,7 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.copyBtn:hover { background: var(--accent); color: #0e0e0e; }
+.copyBtn:hover { background: var(--accent); color: #0d0905; }
 
 .resetBtn {
   flex: 1;
@@ -871,6 +871,75 @@
   .scoreHero { flex-direction: column; text-align: center; }
   .scoreMeta { text-align: center; }
   .actionRow { flex-direction: column; }
+  .premiumCard { flex-direction: column; align-items: flex-start; }
+  .premiumRight { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
+}
+
+@media (max-width: 480px) {
+  /* Layout */
+  .page { padding: 40px 16px 60px; }
+  .results { width: 100%; }
+
+  /* Header */
+  .title { font-size: 44px; }
+  .subtitle { font-size: 14px; }
+
+  /* History toggle — push it away from the drop zone content */
+  .historyToggle { font-size: 12px; padding: 6px 10px; }
+
+  /* Drop zone — less cavernous on small screens */
+  .dropZone { padding: 32px 20px; }
+
+  /* Mode row */
+  .modeRow { width: 100%; justify-content: center; }
+  .modeBtn { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; }
+
+  /* Score hero */
+  .scoreHero { padding: 20px; gap: 16px; }
+  .ringWrap { width: 110px; height: 110px; }
+  .ringScore { font-size: 28px; }
+  .scoreTitle { font-size: 18px; }
+
+  /* Sections */
+  .section { padding: 16px; }
+  .sectionTitle { font-size: 10px; }
+
+  /* Pro / premium cards */
+  .proCard { padding: 18px 16px; }
+  .premiumCard { padding: 18px 16px; }
+  .premiumTitle { font-size: 14px; }
+  .premiumPrice { font-size: 24px; }
+  .premiumBtn { padding: 10px 16px; font-size: 13px; }
+
+  /* Pro upgrade button on rate limit screen */
+  .proUpgradeBtn { font-size: 14px; padding: 12px; }
+
+  /* Limit / loading screens */
+  .limitWrap { margin-top: 48px; padding: 0 4px; }
+  .loadingWrap { margin-top: 80px; }
+  .limitTitle { font-size: 24px; }
+  .limitSub { font-size: 14px; }
+
+  /* Action row buttons */
+  .copyBtn, .resetBtn, .shareBtn, .downloadBtn { font-size: 13px; padding: 10px 14px; }
+
+  /* Rewrite box */
+  .rewriteBox { padding: 16px; }
+  .rewriteText { font-size: 12px; }
+  .rewriteHero { padding: 18px 16px; }
+
+  /* Job match card */
+  .jobMatchCard { padding: 16px; }
+  .jobMatchPct { font-size: 24px; }
+
+  /* Keyword tags */
+  .kwTag { font-size: 11px; padding: 3px 8px; }
+
+  /* Enterprise banner */
+  .enterpriseBanner { font-size: 12px; padding: 8px 12px; }
+
+  /* Score hero responsive fix (overrides 500px rule) */
+  .scoreMeta { width: 100%; }
 }
 
 @keyframes fadeUp {
@@ -881,23 +950,3 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-/* ── Payment Fallback ────────────────────────────────────────────────────── */
-.paymentFallback {
-  background: #1a2e05;
-  border: 1px solid #c8f04a66;
-  border-radius: var(--radius);
-  padding: 20px 24px;
-  margin-bottom: 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  text-align: center;
-}
-
-.paymentFallbackMsg {
-  font-size: 14px;
-  color: var(--text);
-  margin: 0;
-}

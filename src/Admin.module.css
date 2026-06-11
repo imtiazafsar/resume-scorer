@@ -61,7 +61,7 @@
   box-sizing: border-box;
 }
 .loginInput:focus { outline: none; border-color: var(--accent); }
-.loginError { color: #f04a4a; font-size: 13px; margin: 0; }
+.loginError { color: #c0392b; font-size: 13px; margin: 0; }
 
 .loginBtn {
   width: 100%;
@@ -69,7 +69,7 @@
   font-size: 15px;
   font-weight: 600;
   background: var(--accent);
-  color: #0e0e0e;
+  color: #0d0905;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -135,9 +135,9 @@
 }
 .tab:hover { background: rgba(255,255,255,0.05); color: var(--text); }
 .tabOn {
-  background: #c8f04a18;
+  background: #d4a01718;
   color: var(--accent);
-  border: 0.5px solid #c8f04a33;
+  border: 0.5px solid #d4a01733;
 }
 
 .topActions { display: flex; gap: 8px; flex-shrink: 0; }
@@ -165,23 +165,23 @@
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
-.logoutBtn:hover { border-color: #f04a4a; color: #f04a4a; }
+.logoutBtn:hover { border-color: #c0392b; color: #c0392b; }
 
 .fetchErr {
   background: #2e0505;
-  color: #f04a4a;
+  color: #c0392b;
   font-size: 13px;
   padding: 10px 28px;
-  border-bottom: 0.5px solid #f04a4a44;
+  border-bottom: 0.5px solid #c0392b44;
 }
 
 /* ── Notice ──────────────────────────────────────────────────────────────── */
 .notice {
   background: #1a1a00;
-  border-bottom: 0.5px solid #f0c84a44;
+  border-bottom: 0.5px solid #e0903044;
   padding: 12px 28px;
   font-size: 13px;
-  color: #f0c84a;
+  color: #e09030;
   line-height: 1.6;
 }
 .notice code {
