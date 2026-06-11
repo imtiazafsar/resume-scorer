@@ -3,7 +3,6 @@ import Nav from './Nav';
 import s from './App.module.css';
 import ls from './LinkedIn.module.css';
 
-// ── Score ring ───────────────────────────────────────────────────────────────
 function ScoreRing({ score }) {
   const r    = 54;
   const circ = 2 * Math.PI * r;
@@ -22,7 +21,6 @@ function ScoreRing({ score }) {
   );
 }
 
-// ── Mini score bar ────────────────────────────────────────────────────────────
 function ScoreBar({ value }) {
   const pct   = (value / 10) * 100;
   const color = value >= 8 ? '#E4002B' : value >= 6 ? '#ff4d6a' : value >= 4 ? '#ff8c00' : '#cc001a';
@@ -51,9 +49,12 @@ const SECTION_LABELS = {
   skills: 'Skills', education: 'Education',
 };
 
+const TIPS = [
+  'Open LinkedIn → View Profile → select all and copy everything visible',
+  'Include headline, About, experience, skills and education for best results',
+];
+
 export default function LinkedIn() {
-  const [inputMode, setInputMode]         = useState('url');   // 'url' | 'paste'
-  const [profileUrl, setProfileUrl]       = useState('');
   const [profileText, setProfileText]     = useState('');
   const [targetRole, setTargetRole]       = useState('');
   const [loading, setLoading]             = useState(false);
@@ -65,10 +66,7 @@ export default function LinkedIn() {
   const proToken = localStorage.getItem('resume_pro_token') || undefined;
 
   async function analyse() {
-    const hasUrl  = inputMode === 'url'   && profileUrl.trim().length > 0;
-    const hasText = inputMode === 'paste' && profileText.trim().length >= 50;
-    if (!hasUrl && !hasText) return;
-
+    if (profileText.trim().length < 50) { setError('Please paste more of your LinkedIn profile.'); return; }
     setError('');
     setLoading(true);
     setResult(null);
@@ -77,23 +75,11 @@ export default function LinkedIn() {
       const res = await fetch('/api/linkedin-optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          profileUrl:  hasUrl  ? profileUrl.trim()  : undefined,
-          profileText: hasText ? profileText.trim() : undefined,
-          targetRole: targetRole.trim() || undefined,
-          proToken,
-        }),
+        body: JSON.stringify({ profileText, targetRole: targetRole.trim() || undefined, proToken }),
       });
       const data = await res.json();
-
       if (!res.ok) {
-        if (data.noProxycurl || data.fetchFailed) {
-          // Auto-fetch unavailable — switch to paste mode
-          setInputMode('paste');
-          setError(data.error + (data.noProxycurl ? '' : ' Switch to "Paste Text" below.'));
-        } else {
-          setError(data.error || 'Something went wrong. Please try again.');
-        }
+        setError(data.error || 'Something went wrong. Please try again.');
         return;
       }
       setResult(data);
@@ -113,16 +99,12 @@ export default function LinkedIn() {
 
   function reset() {
     setResult(null); setError('');
-    setProfileUrl(''); setProfileText(''); setTargetRole('');
+    setProfileText(''); setTargetRole('');
     setActiveHeadline(0); setExpandedWeak(null);
   }
 
-  const gradeStyle   = result ? (GRADE_STYLES[result.grade] || GRADE_STYLES['Average']) : null;
-  const canSubmitUrl  = profileUrl.trim().length > 10;
-  const canSubmitPaste = profileText.trim().length >= 50;
-  const canSubmit    = (inputMode === 'url' && canSubmitUrl) || (inputMode === 'paste' && canSubmitPaste);
+  const gradeStyle = result ? (GRADE_STYLES[result.grade] || GRADE_STYLES['Average']) : null;
 
-  // Sort weaknesses: critical → moderate → quick_win
   const SORDER = { critical: 0, moderate: 1, quick_win: 2 };
   const weaknesses = (result?.weaknesses || []).slice().sort(
     (a, b) => (SORDER[a.severity] ?? 3) - (SORDER[b.severity] ?? 3)
@@ -134,75 +116,25 @@ export default function LinkedIn() {
 
       <div className={ls.page}>
 
-        {/* ── Input form ────────────────────────────────────────────── */}
+        {/* ── Input form ── */}
         {!result && !loading && (
           <>
             <div className={ls.hero}>
               <h1 className={ls.title}>LinkedIn Profile Analyser</h1>
               <p className={ls.subtitle}>
-                Get an AI-powered deep analysis — section scores, severity-ranked weaknesses,
-                before/after rewrites, ATS keyword gaps, and optimised headline options.
+                Paste your profile and get section-by-section scores, severity-ranked weaknesses
+                with before/after rewrites, ATS keyword gaps, and optimised headline options.
               </p>
             </div>
 
             <div className={ls.formWrap}>
-              {/* Mode toggle */}
-              <div className={ls.modeToggle}>
-                <button
-                  className={inputMode === 'url' ? ls.modeOn : ls.modeOff}
-                  onClick={() => setInputMode('url')}
-                >🔗 Profile URL</button>
-                <button
-                  className={inputMode === 'paste' ? ls.modeOn : ls.modeOff}
-                  onClick={() => setInputMode('paste')}
-                >📋 Paste Text</button>
+              <div className={ls.tipBox}>
+                {TIPS.map((t, i) => (
+                  <p key={i} className={ls.tipItem}><span className={ls.tipBullet}>→</span>{t}</p>
+                ))}
               </div>
 
-              {/* URL input */}
-              {inputMode === 'url' && (
-                <>
-                  <label className={ls.label}>LinkedIn Profile URL</label>
-                  <input
-                    className={ls.input}
-                    placeholder="https://www.linkedin.com/in/your-profile"
-                    value={profileUrl}
-                    onChange={e => setProfileUrl(e.target.value)}
-                    type="url"
-                  />
-                  <p className={ls.modeHint}>
-                    Paste your public LinkedIn profile URL. Auto-fetch must be enabled on the server — if it fails, switch to Paste Text.
-                  </p>
-                </>
-              )}
-
-              {/* Paste input */}
-              {inputMode === 'paste' && (
-                <>
-                  <div className={ls.tipBox}>
-                    <p className={ls.tipItem}><span className={ls.tipBullet}>→</span>Open LinkedIn → View Profile → select all and copy everything visible</p>
-                    <p className={ls.tipItem}><span className={ls.tipBullet}>→</span>Include headline, About, experience, skills, and education for best results</p>
-                  </div>
-                  <label className={ls.label}>
-                    Your LinkedIn Profile Text
-                    <span className={ls.charCount}>{profileText.length} chars</span>
-                  </label>
-                  <textarea
-                    className={ls.textarea}
-                    rows={12}
-                    placeholder="Paste your full LinkedIn profile here — headline, about, experience, skills, education…"
-                    value={profileText}
-                    onChange={e => setProfileText(e.target.value)}
-                  />
-                  {profileText.trim().length > 0 && profileText.trim().length < 50 && (
-                    <p className={ls.hintMsg}>Paste more of your profile for accurate results.</p>
-                  )}
-                </>
-              )}
-
-              {/* Target role (both modes) */}
-              <label className={ls.label} style={{ marginTop: 16 }}>
-                Target Role <span className={ls.optional}>(optional — unlocks ATS keyword analysis)</span>
-              </label>
+              <label className={ls.label}>Target Role <span className={ls.optional}>(optional — unlocks ATS keyword analysis)</span></label>
               <input
                 className={ls.input}
                 placeholder="e.g. Product Manager, Software Engineer, Marketing Lead…"
@@ -210,20 +142,35 @@ export default function LinkedIn() {
                 onChange={e => setTargetRole(e.target.value)}
               />
 
+              <label className={ls.label} style={{ marginTop: 16 }}>
+                Your LinkedIn Profile Text
+                <span className={ls.charCount}>{profileText.length} chars</span>
+              </label>
+              <textarea
+                className={ls.textarea}
+                rows={14}
+                placeholder="Paste your full LinkedIn profile here — headline, about, experience, skills, education…"
+                value={profileText}
+                onChange={e => setProfileText(e.target.value)}
+              />
+
               {error && <p className={ls.errorMsg}>{error}</p>}
 
               <button
                 className={ls.analyseBtn}
-                disabled={!canSubmit}
+                disabled={profileText.trim().length < 50}
                 onClick={analyse}
               >
                 Analyse Profile →
               </button>
+              {profileText.trim().length > 0 && profileText.trim().length < 50 && (
+                <p className={ls.hintMsg}>Paste more of your profile for accurate results.</p>
+              )}
             </div>
           </>
         )}
 
-        {/* ── Loading ───────────────────────────────────────────────── */}
+        {/* ── Loading ── */}
         {loading && (
           <div className={s.loadingWrap}>
             <div className={s.spinner} />
@@ -232,11 +179,11 @@ export default function LinkedIn() {
           </div>
         )}
 
-        {/* ── Results ───────────────────────────────────────────────── */}
+        {/* ── Results ── */}
         {result && !loading && (
           <div className={ls.results}>
 
-            {/* ── Overall score ── */}
+            {/* Overall score */}
             <div className={ls.scoreCard}>
               <ScoreRing score={result.score} />
               <div className={ls.scoreMeta}>
@@ -248,7 +195,7 @@ export default function LinkedIn() {
               </div>
             </div>
 
-            {/* ── Section scores ── */}
+            {/* Section scores */}
             {result.sectionScores && (
               <div className={ls.card}>
                 <h3 className={ls.cardTitle}><span>📊</span> Section Scores</h3>
@@ -269,11 +216,11 @@ export default function LinkedIn() {
               </div>
             )}
 
-            {/* ── Weaknesses ── */}
+            {/* Weaknesses */}
             {weaknesses.length > 0 && (
               <div className={ls.card}>
                 <h3 className={ls.cardTitle}><span>⚠️</span> Weaknesses</h3>
-                <p className={ls.cardHint}>Fixed from most to least impactful. Click to see before/after rewrite.</p>
+                <p className={ls.cardHint}>Sorted most to least impactful. Click any item for a before/after rewrite.</p>
                 <div className={ls.weakList}>
                   {weaknesses.map((w, i) => {
                     const meta = SEVERITY_META[w.severity] || SEVERITY_META.moderate;
@@ -314,7 +261,7 @@ export default function LinkedIn() {
               </div>
             )}
 
-            {/* ── ATS keyword gaps (if target role provided) ── */}
+            {/* ATS keyword analysis */}
             {(result.atsKeywordsFound?.length > 0 || result.atsKeywordGaps?.length > 0) && (
               <div className={ls.card}>
                 <h3 className={ls.cardTitle}><span>🔍</span> ATS Keyword Analysis</h3>
@@ -331,7 +278,7 @@ export default function LinkedIn() {
                 )}
                 {result.atsKeywordsFound?.length > 0 && (
                   <>
-                    <p className={ls.atsLabel} style={{ color: '#2e7d32', marginTop: 12 }}>Already in your profile</p>
+                    <p className={ls.atsLabel} style={{ color: '#4caf50', marginTop: 12 }}>Already in your profile</p>
                     <div className={ls.atsTags}>
                       {result.atsKeywordsFound.map((k, i) => (
                         <span key={i} className={ls.atsTagFound}>{k}</span>
@@ -342,7 +289,7 @@ export default function LinkedIn() {
               </div>
             )}
 
-            {/* ── Job match ── */}
+            {/* Job match score */}
             {result.jobMatchScore != null && (
               <div className={ls.card}>
                 <h3 className={ls.cardTitle}>
@@ -359,7 +306,7 @@ export default function LinkedIn() {
               </div>
             )}
 
-            {/* ── Headlines ── */}
+            {/* Headlines */}
             <div className={ls.card}>
               <h3 className={ls.cardTitle}><span>✏️</span> Headline Options</h3>
               <p className={ls.cardHint}>Pick one — or blend elements from multiple options.</p>
@@ -381,7 +328,7 @@ export default function LinkedIn() {
               </div>
             </div>
 
-            {/* ── About section ── */}
+            {/* About section */}
             <div className={ls.card}>
               <div className={ls.cardTitleRow}>
                 <h3 className={ls.cardTitle}><span>📝</span> Rewritten About Section</h3>
@@ -395,7 +342,7 @@ export default function LinkedIn() {
               </div>
             </div>
 
-            {/* ── Skills to add ── */}
+            {/* Skills to add */}
             <div className={ls.card}>
               <h3 className={ls.cardTitle}><span>🛠</span> Skills to Add</h3>
               <p className={ls.cardHint}>Add these to your Skills section to improve recruiter search visibility.</p>
@@ -406,7 +353,7 @@ export default function LinkedIn() {
               </div>
             </div>
 
-            {/* ── Quick wins ── */}
+            {/* Quick wins */}
             <div className={ls.card}>
               <h3 className={ls.cardTitle}><span>⚡</span> Quick Wins</h3>
               <ul className={ls.tipList}>
@@ -416,7 +363,7 @@ export default function LinkedIn() {
               </ul>
             </div>
 
-            {/* ── Actions ── */}
+            {/* Actions */}
             <div className={ls.actionRow}>
               <button className={ls.resetBtn} onClick={reset}>← Analyse Another Profile</button>
               <button className={ls.copyBtnLg} onClick={() => {
@@ -428,7 +375,7 @@ export default function LinkedIn() {
                   ...Object.entries(result.sectionScores || {}).map(([k, v]) => `${SECTION_LABELS[k] || k}: ${v}/10`),
                   '',
                   '— Weaknesses —',
-                  ...(weaknesses).map(w => `[${w.severity.toUpperCase()}] ${w.section}: ${w.issue}`),
+                  ...weaknesses.map(w => `[${w.severity.toUpperCase()}] ${w.section}: ${w.issue}`),
                   '',
                   '— Headlines —',
                   ...(result.headlines || []).map((h, i) => `Option ${i+1}: ${h}`),
