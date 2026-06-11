@@ -4,7 +4,8 @@ import s from './Enterprise.module.css';
 import Nav from './Nav';
 
 const MAX_FILES      = 25;
-const FREE_DAILY_CAP = 25;
+const FREE_DAILY_CAP = 5;
+const LS_TOKEN_KEY   = 'enterprise_token';
 
 function scoreColor(score) {
   if (score >= 80) return '#E4002B';
@@ -58,34 +59,99 @@ export default function Enterprise() {
   const [jobDesc, setJobDesc]         = useState('');
   const [files, setFiles]             = useState([]);
   const [drag, setDrag]               = useState(false);
-  const [fileStatuses, setFileStatuses] = useState({});   // filename → 'extracting'|'screening'|'done'|'error'
+  const [fileStatuses, setFileStatuses] = useState({});
   const [progress, setProgress]       = useState({ done: 0, total: 0, phase: '' });
   const [results, setResults]         = useState(null);
   const [error, setError]             = useState('');
   const [expanded, setExpanded]       = useState(null);
-  const [filter, setFilter]           = useState('all');  // all | recommended | excellent | errors
-  const [sortKey, setSortKey]         = useState('rank'); // rank | score | name | grade
+  const [filter, setFilter]           = useState('all');
+  const [sortKey, setSortKey]         = useState('rank');
   const [sortDir, setSortDir]         = useState('asc');
-  const [proToken, setProToken]       = useState(() => localStorage.getItem('resume_pro_token') || '');
-  const [showProInput, setShowProInput] = useState(false);
-  const fileRef = useRef();
-  const abortRef = useRef(null);
+
+  // Enterprise token states
+  const [enterpriseToken, setEnterpriseToken] = useState(() => localStorage.getItem(LS_TOKEN_KEY) || '');
+  const [quotaInfo, setQuotaInfo]    = useState(null);  // { type, remaining, totalQuota? / monthlyQuota? }
+  const [licenseKey, setLicenseKey]  = useState('');
+  const [activating, setActivating]  = useState(false);
+  const [activateError, setActivateError] = useState('');
+
+  const fileRef  = useRef();
 
   const GUMROAD_URLS = {
     batch:   'https://imtiazafsar.gumroad.com/l/enterprise-batch',
     monthly: 'https://imtiazafsar.gumroad.com/l/enterprise-monthly',
   };
 
-  // Restore saved results
+  // On mount: restore session results + check stored token
   useEffect(() => {
+    // Restore saved session
     try {
       const saved = sessionStorage.getItem(SESSION_KEY);
       if (saved) {
         const { results: r, jobTitle: jt } = JSON.parse(saved);
-        if (r && jt) { setResults(r); setJobTitle(jt); setView('results'); }
+        if (r && jt) { setResults(r); setJobTitle(jt); setView('results'); return; }
       }
     } catch {}
+
+    // Check stored enterprise token
+    const storedToken = localStorage.getItem(LS_TOKEN_KEY);
+    if (storedToken) {
+      checkToken(storedToken);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Check existing token (quota only, no Gumroad call)
+  async function checkToken(token) {
+    try {
+      const res = await fetch('/api/enterprise-activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ licenseKey: token, checkOnly: true }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setEnterpriseToken(token);
+        setQuotaInfo(data);
+        setView('setup');
+      } else {
+        // Token invalid / expired — clear it
+        localStorage.removeItem(LS_TOKEN_KEY);
+        setEnterpriseToken('');
+      }
+    } catch {}
+  }
+
+  // Activate a license key
+  async function activateLicense(key) {
+    const k = (key || licenseKey).trim();
+    if (!k) return;
+    setActivating(true);
+    setActivateError('');
+
+    try {
+      const res = await fetch('/api/enterprise-activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ licenseKey: k }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setActivateError(data.error || 'Activation failed. Please try again.');
+        return;
+      }
+      const upperKey = k.toUpperCase();
+      localStorage.setItem(LS_TOKEN_KEY, upperKey);
+      setEnterpriseToken(upperKey);
+      setQuotaInfo(data);
+      setLicenseKey('');
+      setView('setup');
+    } catch {
+      setActivateError('Network error. Please try again.');
+    } finally {
+      setActivating(false);
+    }
+  }
 
   // Gumroad purchase listener
   useEffect(() => {
@@ -94,10 +160,17 @@ export default function Enterprise() {
       let data;
       try { data = JSON.parse(e.data); } catch { return; }
       if (data.post_message_name !== 'sale') return;
-      setView('setup');
+
+      // If Gumroad passes the license key directly, auto-activate
+      if (data.license_key) {
+        activateLicense(data.license_key);
+      } else {
+        setView('activate');
+      }
     }
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function openGumroad(type) {
@@ -109,6 +182,13 @@ export default function Enterprise() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  }
+
+  function clearToken() {
+    localStorage.removeItem(LS_TOKEN_KEY);
+    setEnterpriseToken('');
+    setQuotaInfo(null);
+    setView('pricing');
   }
 
   function addFiles(newFiles) {
@@ -139,7 +219,7 @@ export default function Enterprise() {
     setExpanded(null);
     setFileStatuses({});
 
-    // Phase 1: Extract text from all files
+    // Phase 1: Extract text
     setView('extracting');
     setProgress({ done: 0, total: files.length, phase: 'Extracting text' });
 
@@ -166,11 +246,10 @@ export default function Enterprise() {
       if (current !== 'error') markStatus(f.name, 'screening');
     });
 
-    let startTime = Date.now();
-    // Simulate per-file completion while waiting (cosmetic progress)
+    const startTime = Date.now();
     const tickInterval = setInterval(() => {
-      const elapsed = (Date.now() - startTime) / 1000;
-      const expected = files.length * 2.5; // ~2.5s per file estimate
+      const elapsed  = (Date.now() - startTime) / 1000;
+      const expected = files.length * 2.5;
       const done = Math.min(Math.floor((elapsed / expected) * files.length), files.length - 1);
       setProgress(p => ({ ...p, done }));
     }, 500);
@@ -179,21 +258,43 @@ export default function Enterprise() {
       const res = await fetch('/api/enterprise-screen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resumes, jobTitle, jobDescription: jobDesc, proToken: proToken || undefined }),
+        body: JSON.stringify({
+          resumes,
+          jobTitle,
+          jobDescription: jobDesc,
+          enterpriseToken: enterpriseToken || undefined,
+        }),
       });
       clearInterval(tickInterval);
 
-      if (!res) { setError('Network error. Please try again.'); setView('setup'); return; }
       const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Screening failed.'); setView('setup'); return; }
+      if (!res.ok) {
+        if (data.invalidToken) {
+          // Token no longer valid — send back to activate
+          localStorage.removeItem(LS_TOKEN_KEY);
+          setEnterpriseToken('');
+          setQuotaInfo(null);
+          setError(data.error);
+          setView('activate');
+        } else if (data.upgradeRequired) {
+          setError(data.error);
+          setView('pricing');
+        } else {
+          setError(data.error || 'Screening failed.');
+          setView('setup');
+        }
+        return;
+      }
 
-      // Mark each file's final status
       data.candidates.forEach(c => markStatus(c.filename, c.error ? 'error' : 'done'));
       setProgress({ done: files.length, total: files.length, phase: 'Complete' });
 
-      // Persist to session storage
-      try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ results: data, jobTitle })); } catch {}
+      // Update quota display after a successful run
+      if (enterpriseToken) {
+        checkToken(enterpriseToken);
+      }
 
+      try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ results: data, jobTitle })); } catch {}
       setResults(data);
       setView('results');
     } catch {
@@ -218,14 +319,13 @@ export default function Enterprise() {
   }
 
   // Derived stats
-  const allCandidates  = results?.candidates || [];
-  const validCands     = allCandidates.filter(c => !c.error);
-  const avgScore       = validCands.length ? Math.round(validCands.reduce((a, c) => a + c.score, 0) / validCands.length) : 0;
-  const excellent      = allCandidates.filter(c => c.grade === 'Excellent').length;
-  const recommended    = allCandidates.filter(c => c.score >= 70).length;
-  const errorCount     = allCandidates.filter(c => c.error).length;
+  const allCandidates = results?.candidates || [];
+  const validCands    = allCandidates.filter(c => !c.error);
+  const avgScore      = validCands.length ? Math.round(validCands.reduce((a, c) => a + c.score, 0) / validCands.length) : 0;
+  const excellent     = allCandidates.filter(c => c.grade === 'Excellent').length;
+  const recommended   = allCandidates.filter(c => c.score >= 70).length;
+  const errorCount    = allCandidates.filter(c => c.error).length;
 
-  // Filter + sort
   const filtered = allCandidates.filter(c => {
     if (filter === 'recommended') return c.score >= 70;
     if (filter === 'excellent')   return c.grade === 'Excellent';
@@ -243,9 +343,8 @@ export default function Enterprise() {
     return sortDir === 'desc' ? -cmp : cmp;
   });
 
-  const sortIcon = (key) => sortKey === key ? (sortDir === 'asc' ? ' ▲' : ' ▼') : '';
-
-  const statusIcon = (filename) => {
+  const sortIcon   = (key) => sortKey === key ? (sortDir === 'asc' ? ' ▲' : ' ▼') : '';
+  const statusIcon  = (filename) => {
     const st = fileStatuses[filename];
     if (st === 'extracting') return '⟳';
     if (st === 'extracted')  return '✓';
@@ -254,7 +353,6 @@ export default function Enterprise() {
     if (st === 'error')      return '✗';
     return '·';
   };
-
   const statusColor = (filename) => {
     const st = fileStatuses[filename];
     if (st === 'done' || st === 'extracted') return '#E4002B';
@@ -263,11 +361,29 @@ export default function Enterprise() {
     return 'var(--text-dim)';
   };
 
+  // Quota badge label
+  function QuotaBadge() {
+    if (!quotaInfo) return null;
+    const { type, remaining, totalQuota, monthlyQuota } = quotaInfo;
+    if (type === 'batch') {
+      return (
+        <span className={s.quotaBadge}>
+          Batch — {remaining}/{totalQuota} left
+        </span>
+      );
+    }
+    return (
+      <span className={s.quotaBadge}>
+        Monthly — {remaining}/{monthlyQuota} left this month
+      </span>
+    );
+  }
+
   return (
     <div className={s.page}>
       <Nav active="Enterprise" />
 
-      {/* ── Pricing gate ── */}
+      {/* ── Pricing gate ──────────────────────────────────────────────── */}
       {view === 'pricing' && (
         <div className={s.body}>
           <div className={s.pricingWrap}>
@@ -294,9 +410,9 @@ export default function Enterprise() {
                 <span className={s.pricingPopular}>Most Popular</span>
                 <span className={s.pricingPlan} style={{ color: '#E4002B' }}>Monthly</span>
                 <div className={s.pricingAmount}><span className={s.pricingAmt} style={{ color: '#E4002B' }}>$99</span><span className={s.pricingPer}>/month</span></div>
-                <p className={s.pricingDesc}>Unlimited batches. For teams actively hiring across multiple roles.</p>
+                <p className={s.pricingDesc}>2,000 screenings per month. For teams actively hiring across multiple roles.</p>
                 <ul className={s.pricingFeats}>
-                  <li>✓ Unlimited screening runs</li>
+                  <li>✓ 2,000 candidate screenings/month</li>
                   <li>✓ Up to 25 resumes per run</li>
                   <li>✓ All batch features</li>
                   <li>✓ Priority support</li>
@@ -307,19 +423,75 @@ export default function Enterprise() {
               </div>
             </div>
 
-            <p className={s.pricingNote}>
-              Not sure?{' '}
-              <button className={s.pricingTryLink} onClick={() => setView('setup')}>
-                Try it free — {FREE_DAILY_CAP} candidates/day
-              </button>
-            </p>
+            <div className={s.pricingFooter}>
+              <p className={s.pricingNote}>
+                Not sure?{' '}
+                <button className={s.pricingTryLink} onClick={() => setView('setup')}>
+                  Try free — {FREE_DAILY_CAP} candidates/day
+                </button>
+              </p>
+              <p className={s.pricingNote} style={{ marginTop: 8 }}>
+                Already purchased?{' '}
+                <button className={s.pricingTryLink} onClick={() => setView('activate')}>
+                  Activate your license key →
+                </button>
+              </p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* ── Setup ── */}
+      {/* ── License key activation ────────────────────────────────────── */}
+      {view === 'activate' && (
+        <div className={s.body}>
+          <div className={s.pricingWrap}>
+            <h2 className={s.pricingTitle}>Activate Your License</h2>
+            <p className={s.pricingSubtitle}>Enter the license key from your Gumroad purchase email to unlock enterprise screening.</p>
+
+            <div className={s.activateBox}>
+              <label className={s.fieldLabel}>License Key</label>
+              <input
+                className={s.input}
+                placeholder="e.g. XXXX-XXXX-XXXX-XXXX"
+                value={licenseKey}
+                onChange={e => setLicenseKey(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && activateLicense()}
+                style={{ fontSize: 15, letterSpacing: '0.05em', textTransform: 'uppercase' }}
+              />
+              <p className={s.activateHint}>
+                Find this in your Gumroad purchase confirmation email. License keys are enabled on enterprise plans.
+              </p>
+              {activateError && <p className={s.errorMsg}>{activateError}</p>}
+              <button
+                className={s.screenBtn}
+                style={{ marginTop: 16 }}
+                disabled={!licenseKey.trim() || activating}
+                onClick={() => activateLicense()}
+              >
+                {activating ? 'Verifying…' : 'Activate License →'}
+              </button>
+            </div>
+
+            <div className={s.pricingFooter}>
+              <button className={s.pricingTryLink} onClick={() => setView('pricing')}>← Back to pricing</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Setup ────────────────────────────────────────────────────── */}
       {view === 'setup' && (
         <div className={s.body}>
+          {/* Quota info bar (only for paid users) */}
+          {quotaInfo && (
+            <div className={s.quotaBar}>
+              <QuotaBadge />
+              <button className={s.quotaChangeLink} onClick={clearToken}>
+                Change license
+              </button>
+            </div>
+          )}
+
           <div className={s.setupGrid}>
             {/* Left: Job details */}
             <div className={s.panel}>
@@ -340,38 +512,26 @@ export default function Enterprise() {
                 )}
               </label>
               <textarea className={s.textarea} rows={10}
-                placeholder="Paste the full job description — responsibilities, requirements, skills…&#10;&#10;Tip: longer descriptions yield more accurate screening."
+                placeholder={"Paste the full job description — responsibilities, requirements, skills…\n\nTip: longer descriptions yield more accurate screening."}
                 value={jobDesc}
                 onChange={e => setJobDesc(e.target.value)} />
 
-              {/* Pro token */}
-              <div style={{ marginTop: 14 }}>
-                {!showProInput ? (
-                  <button className={s.proToggle} onClick={() => setShowProInput(true)}>
-                    Have a Pro token? Unlock unlimited →
+              {/* For free users, show upgrade nudge */}
+              {!quotaInfo && (
+                <p className={s.freeNotice}>
+                  Free tier: {FREE_DAILY_CAP} candidates/day.{' '}
+                  <button className={s.pricingTryLink} onClick={() => setView('pricing')}>
+                    Upgrade for more →
                   </button>
-                ) : (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <input
-                      className={s.input}
-                      style={{ flex: 1, fontSize: 13 }}
-                      placeholder="Pro token (from your purchase email)"
-                      value={proToken}
-                      onChange={e => { setProToken(e.target.value); localStorage.setItem('resume_pro_token', e.target.value); }}
-                    />
-                    <button className={s.clearBtn} style={{ fontSize: 13, padding: '0 4px' }} onClick={() => setShowProInput(false)}>✕</button>
-                  </div>
-                )}
-              </div>
+                </p>
+              )}
             </div>
 
             {/* Right: Resume upload */}
             <div className={s.panel}>
               <h2 className={s.panelTitle}>
                 Upload Resumes
-                <span className={s.panelLimit}>
-                  {files.length}/{MAX_FILES} files
-                </span>
+                <span className={s.panelLimit}>{files.length}/{MAX_FILES} files</span>
               </h2>
 
               <div className={`${s.dropZone} ${drag ? s.dropActive : ''}`}
@@ -423,7 +583,7 @@ export default function Enterprise() {
         </div>
       )}
 
-      {/* ── Processing ── */}
+      {/* ── Processing ───────────────────────────────────────────────── */}
       {(view === 'extracting' || view === 'screening') && (
         <div className={s.body}>
           <div className={s.processingWrap}>
@@ -437,7 +597,6 @@ export default function Enterprise() {
                 : `Running AI analysis — about ${Math.max(10, files.length * 2)}–${Math.max(20, files.length * 3)} seconds.`}
             </p>
 
-            {/* Progress bar */}
             <div className={s.progressBar}>
               <div className={s.progressFill} style={{ width: `${progress.total ? (progress.done / progress.total) * 100 : 0}%` }} />
             </div>
@@ -457,10 +616,9 @@ export default function Enterprise() {
         </div>
       )}
 
-      {/* ── Results ── */}
+      {/* ── Results ──────────────────────────────────────────────────── */}
       {view === 'results' && results && (
         <div className={s.body}>
-          {/* Stats bar */}
           <div className={s.statsBar}>
             <div className={s.statItem}>
               <span className={s.statNum}>{results.total}</span>
@@ -490,7 +648,6 @@ export default function Enterprise() {
             </div>
           </div>
 
-          {/* Filter + sort bar */}
           <div className={s.filterBar}>
             {[
               { key: 'all',         label: `All (${allCandidates.length})` },
@@ -498,17 +655,14 @@ export default function Enterprise() {
               { key: 'excellent',   label: `Excellent (${excellent})` },
               ...(errorCount > 0 ? [{ key: 'errors', label: `Failed (${errorCount})` }] : []),
             ].map(tab => (
-              <button
-                key={tab.key}
+              <button key={tab.key}
                 className={filter === tab.key ? s.filterTabOn : s.filterTab}
                 onClick={() => setFilter(tab.key)}>
                 {tab.label}
               </button>
             ))}
             <div style={{ flex: 1 }} />
-            <span style={{ fontSize: 11, color: 'var(--text-dim)', alignSelf: 'center' }}>
-              Sort:
-            </span>
+            <span style={{ fontSize: 11, color: 'var(--text-dim)', alignSelf: 'center' }}>Sort:</span>
             {[
               { key: 'rank',  label: 'Rank' },
               { key: 'score', label: 'Score' },
@@ -532,7 +686,6 @@ export default function Enterprise() {
             </p>
           )}
 
-          {/* Results table */}
           <div className={s.tableWrap}>
             <div className={s.tableHead}>
               <span>#</span>

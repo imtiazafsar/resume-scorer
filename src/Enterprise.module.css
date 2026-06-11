@@ -670,3 +670,70 @@
   .tableHead span:nth-child(7),
   .tableRow .gapCell { display: none; }
 }
+
+/* ── Activate Box ────────────────────────────────────────────────────────── */
+.activateBox {
+  max-width: 440px;
+  margin: 0 auto 24px;
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  text-align: left;
+}
+
+.activateHint {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.pricingFooter {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── Quota Bar (shown in setup view for paid users) ──────────────────────── */
+.quotaBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  margin-bottom: 16px;
+}
+
+.quotaBadge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #E4002B;
+  background: #E4002B18;
+  border: 0.5px solid #E4002B44;
+  border-radius: 20px;
+  padding: 3px 12px;
+}
+
+.quotaChangeLink {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+.quotaChangeLink:hover { color: var(--text-muted); }
+
+/* ── Free notice in setup ────────────────────────────────────────────────── */
+.freeNotice {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 12px;
+}

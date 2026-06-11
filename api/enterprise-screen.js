@@ -47,7 +47,6 @@ async function screenOne(text, filename, jobTitle, jobDescription, apiKey) {
   try {
     return await attemptOnce();
   } catch {
-    // Retry once after a short delay
     await new Promise(res => setTimeout(res, 1200));
     return await attemptOnce();
   }
@@ -56,7 +55,7 @@ async function screenOne(text, filename, jobTitle, jobDescription, apiKey) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { resumes, jobTitle, jobDescription, proToken } = req.body;
+  const { resumes, jobTitle, jobDescription, enterpriseToken } = req.body;
 
   if (!resumes?.length)
     return res.status(400).json({ error: 'No resumes provided.' });
@@ -70,38 +69,89 @@ export default async function handler(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server is missing API key.' });
 
-  // Pro token check — bypass rate limit
-  let isPro = false;
-  if (proToken && typeof proToken === 'string' && proToken.length >= 4) {
-    const proResult = await pipeline([['GET', `pro:sale:${proToken}`]]).catch(() => null);
-    isPro = proResult?.[0]?.result === '1';
+  const today = new Date().toISOString().slice(0, 10);
+  const ip    = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+
+  let isEnterprisePaid = false;
+  let accessData = null;
+  const token = enterpriseToken?.trim()?.toUpperCase() || null;
+
+  // ── Enterprise token validation ──────────────────────────────────────────
+  if (token) {
+    const accessResult = await pipeline([['GET', `enterprise:access:${token}`]]).catch(() => null);
+    accessData = accessResult?.[0]?.result ? JSON.parse(accessResult[0].result) : null;
+
+    if (!accessData) {
+      return res.status(401).json({
+        error: 'Invalid enterprise token. Please activate your license key.',
+        invalidToken: true,
+      });
+    }
+
+    if (accessData.type === 'batch') {
+      const used      = accessData.used || 0;
+      const remaining = accessData.quota - used;
+      if (resumes.length > remaining) {
+        return res.status(429).json({
+          error: `Only ${remaining} screening${remaining !== 1 ? 's' : ''} left on your batch. Upload fewer resumes or buy a new batch.`,
+          quotaExceeded: true,
+          remaining,
+        });
+      }
+    } else if (accessData.type === 'monthly') {
+      const month     = new Date().toISOString().slice(0, 7);
+      const monthKey  = `enterprise:monthly:${token}:${month}`;
+      const mResult   = await pipeline([['GET', monthKey]]).catch(() => null);
+      const monthUsed = parseInt(mResult?.[0]?.result || '0', 10);
+      const remaining = accessData.monthlyQuota - monthUsed;
+      if (resumes.length > remaining) {
+        return res.status(429).json({
+          error: `Monthly quota reached. ${remaining} screenings left this month. Resets on the 1st.`,
+          quotaExceeded: true,
+          remaining,
+        });
+      }
+    }
+    isEnterprisePaid = true;
   }
 
-  // Rate limit: 25 resumes per IP per day on free tier
-  const today = new Date().toISOString().slice(0, 10);
-  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+  // ── Free-tier rate limits (no enterprise token) ──────────────────────────
+  if (!isEnterprisePaid) {
+    // Global circuit breaker: 200 free screenings per day total
+    const globalKey    = `enterprise:global:${today}`;
+    const globalResult = await pipeline([
+      ['INCRBY', globalKey, String(resumes.length)],
+      ['EXPIRE',  globalKey, 86400],
+    ]).catch(() => null);
+    const globalUsed = parseInt(globalResult?.[0]?.result || resumes.length, 10);
+    if (globalUsed > 200) {
+      return res.status(429).json({
+        error: 'Service at capacity right now. Please try again in a few hours.',
+        rateLimited: true,
+      });
+    }
 
-  if (!isPro) {
-    const rlKey = `enterprise:rl2:${ip}:${today}`;
+    // Per-IP free tier: 5 resumes per day
+    const rlKey    = `enterprise:rl3:${ip}:${today}`;
     const rlResult = await pipeline([
       ['INCRBY', rlKey, String(resumes.length)],
       ['EXPIRE',  rlKey, 86400],
     ]).catch(() => null);
-    const usedToday = rlResult?.[0]?.result || resumes.length;
-    if (usedToday > 25) {
+    const usedToday = parseInt(rlResult?.[0]?.result || resumes.length, 10);
+    if (usedToday > 5) {
       return res.status(429).json({
-        error: `Free tier allows 25 candidate screenings per day. Your limit resets at midnight.`,
+        error: 'Free tier allows 5 candidate screenings per day. Purchase a plan for bulk screening.',
         rateLimited: true,
-        remaining: Math.max(0, 25 - (usedToday - resumes.length)),
+        remaining: Math.max(0, 5 - (usedToday - resumes.length)),
+        upgradeRequired: true,
       });
     }
   }
 
-  // Validate resume text — skip empty extractions upfront
-  const valid   = resumes.filter(r => r.text && r.text.trim().length >= 50);
+  // ── Text extraction validation ───────────────────────────────────────────
+  const valid    = resumes.filter(r => r.text && r.text.trim().length >= 50);
   const tooShort = resumes.filter(r => !r.text || r.text.trim().length < 50);
 
-  // Build error candidates for extraction failures
   const errorCandidates = tooShort.map(r => ({
     filename: r.filename,
     name: r.filename.replace(/\.[^/.]+$/, ''),
@@ -115,7 +165,7 @@ export default async function handler(req, res) {
     errorType: 'extraction',
   }));
 
-  // Screen valid resumes in parallel (with retry inside screenOne)
+  // ── Screen valid resumes in parallel ─────────────────────────────────────
   const settled = await Promise.allSettled(
     valid.map(({ filename, text }) => screenOne(text, filename, jobTitle, jobDescription, apiKey))
   );
@@ -141,7 +191,24 @@ export default async function handler(req, res) {
     .sort((a, b) => b.score - a.score)
     .map((c, i) => ({ ...c, rank: i + 1 }));
 
-  // Analytics
+  // ── Deduct enterprise quota ───────────────────────────────────────────────
+  if (isEnterprisePaid && token && accessData) {
+    const screenedCount = valid.length; // deduct based on resumes we actually processed
+    if (accessData.type === 'batch') {
+      const newUsed = Math.min((accessData.used || 0) + screenedCount, accessData.quota);
+      const newData = { ...accessData, used: newUsed };
+      await pipeline([['SET', `enterprise:access:${token}`, JSON.stringify(newData)]]).catch(() => {});
+    } else if (accessData.type === 'monthly') {
+      const month    = new Date().toISOString().slice(0, 7);
+      const monthKey = `enterprise:monthly:${token}:${month}`;
+      await pipeline([
+        ['INCRBY', monthKey, String(screenedCount)],
+        ['EXPIRE', monthKey, 86400 * 35],
+      ]).catch(() => {});
+    }
+  }
+
+  // ── Analytics ────────────────────────────────────────────────────────────
   const validCandidates = allCandidates.filter(c => !c.error);
   const avgScore = validCandidates.length
     ? Math.round(validCandidates.reduce((a, c) => a + c.score, 0) / validCandidates.length)
@@ -153,7 +220,7 @@ export default async function handler(req, res) {
     ['INCR',   `enterprise:batches:${today}`],
     ['INCRBY', 'enterprise:scoreSum',     String(avgScore * validCandidates.length)],
     ['INCRBY', 'enterprise:scoreCount',   String(validCandidates.length)],
-    ['LPUSH',  'enterprise:activity',     JSON.stringify({ ts: new Date().toISOString(), jobTitle, count: allCandidates.length, avgScore })],
+    ['LPUSH',  'enterprise:activity',     JSON.stringify({ ts: new Date().toISOString(), jobTitle, count: allCandidates.length, avgScore, isPaid: isEnterprisePaid })],
     ['LTRIM',  'enterprise:activity', '0', '49'],
   ]).catch(() => {});
 
@@ -161,7 +228,7 @@ export default async function handler(req, res) {
     candidates: allCandidates,
     total: allCandidates.length,
     jobTitle,
-    isPro,
+    isEnterprisePaid,
     extractionErrors: tooShort.length,
   });
 }
