@@ -5,6 +5,7 @@ import App from './App';
 import Admin from './Admin';
 import Enterprise from './Enterprise';
 import LinkedIn from './LinkedIn';
+import StagingBadge from './StagingBadge';
 
 const path = window.location.pathname;
 const isAdmin      = path.startsWith('/admin');
@@ -14,11 +15,14 @@ const isJobMatch   = path.startsWith('/job-match');
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  isAdmin      ? <Admin /> :
-  isEnterprise ? <Enterprise /> :
-  isLinkedIn   ? <LinkedIn /> :
-  isJobMatch   ? <App mode="job" /> :
-                 <App mode="general" />
+  <>
+    <StagingBadge />
+    {isAdmin      ? <Admin /> :
+     isEnterprise ? <Enterprise /> :
+     isLinkedIn   ? <LinkedIn /> :
+     isJobMatch   ? <App mode="job" /> :
+                    <App mode="general" />}
+  </>
 );
 
 if ('serviceWorker' in navigator) {
