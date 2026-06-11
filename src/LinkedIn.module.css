@@ -406,3 +406,234 @@
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Mode toggle (URL / Paste) ───────────────────────────────────────────── */
+.modeToggle {
+  display: flex;
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.modeOn {
+  flex: 1;
+  padding: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.modeOff {
+  flex: 1;
+  padding: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.modeOff:hover { background: var(--bg-hover); color: var(--text); }
+
+.modeHint {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+/* ── Section scores grid ─────────────────────────────────────────────────── */
+.sectionGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.sectionItem { display: flex; flex-direction: column; gap: 4px; }
+
+.sectionLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sectionName { font-size: 13px; color: var(--text-muted); }
+.sectionScore { font-size: 13px; font-weight: 600; }
+
+.scoreBarTrack {
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.scoreBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+
+/* ── Weaknesses ──────────────────────────────────────────────────────────── */
+.weakList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.weakItem {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.weakItem:hover { border-color: var(--border-hover); }
+
+.weakHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.severityBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.weakSection {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.weakChevron {
+  margin-left: auto;
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.weakIssue {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.weakExpanded {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.beforeBox {
+  background: #1a1a1a;
+  border: 0.5px solid #333;
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+
+.beforeLabel {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.beforeText {
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0;
+  text-decoration: line-through;
+  text-decoration-color: #444;
+}
+
+.afterBox {
+  background: #0a1a05;
+  border: 0.5px solid #1e3a18;
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+
+.afterLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.afterLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4caf50;
+}
+
+.afterText {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── ATS keyword analysis ────────────────────────────────────────────────── */
+.atsLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.atsTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.atsTagMissing {
+  font-size: 12px;
+  font-weight: 500;
+  background: #1a0005;
+  color: #cc001a;
+  border: 0.5px solid #cc001a44;
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+.atsTagFound {
+  font-size: 12px;
+  font-weight: 500;
+  background: #0a1a05;
+  color: #4caf50;
+  border: 0.5px solid #4caf5044;
+  border-radius: 20px;
+  padding: 4px 12px;
+}
